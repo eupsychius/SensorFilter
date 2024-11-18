@@ -1,0 +1,14 @@
+﻿<Window x:Class="SensorFilter.SelectModelWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Выберите модель" Height="80" Width="244"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" Icon="/icon.ico">
+    <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <ComboBox   x:Name="ModelComboBox"      Margin="5" VerticalAlignment="Center" 
+                        Width="214" FontSize="14" SelectionChanged="ModelComboBox_SelectionChanged"/>
+        </StackPanel>
+        
+    </Grid>
+</Window>

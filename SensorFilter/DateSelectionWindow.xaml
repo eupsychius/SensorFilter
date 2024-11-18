@@ -1,0 +1,15 @@
+﻿<Window x:Class="SensorFilter.DateSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Title="Выбор даты" Height="120" Width="310" Icon="/icon.ico">
+    <Grid>
+        <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
+            <ComboBox   Width="200" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" FontSize="16"
+                        Name="DateComboBox" />
+            <Button     Width="50"  Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" FontSize="16"
+                        Content="ОК" Click="OkButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,138 @@
+﻿<Window x:Class="SensorFilter.FilteredTable"
+        xmlns           ="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x         ="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d         ="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc        ="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local     ="clr-namespace:SensorFilter"
+        xmlns:control   ="clr-namespace:FilterDataGrid;assembly=FilterDataGrid"
+        mc:Ignorable    ="d"
+        WindowStartupLocation="CenterScreen"
+        Icon="/icon.ico" Title="Показатели датчика" 
+           Width="900"     Height="710" 
+        MinWidth="900"  MinHeight="710">
+    
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            
+            <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="60">
+
+                <GroupBox   FontSize="16" Header="Серийный номер" VerticalAlignment="Center" Width="150" Margin="0,0,10,0" Height="60">
+                    <TextBlock  FontSize="16" Text="-"  Name="SensorID"     Margin="4,0,0,0" VerticalAlignment="Center"/>
+                </GroupBox>
+
+                <GroupBox   FontSize="16" Header="Тип датчика"    VerticalAlignment="Center" Width="150" Margin="0,0,10,0" Height="60">
+                    <TextBlock  FontSize="16" Text="-"  Name="SensorType"   Margin="4,0,0,0" VerticalAlignment="Center"/>
+                </GroupBox>
+
+                <GroupBox   FontSize="16" Header="Модель датчика" VerticalAlignment="Center" Width="150" Height="60">
+                    <TextBlock  FontSize="16" Text="-"  Name="SensorModel"  Margin="4,0,0,0" VerticalAlignment="Center"/>
+                </GroupBox>
+                
+            </StackPanel>
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,10,10,10" Height="60">
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8" x:Name="AdminTools">
+
+                    <Button x:Name="DeleteRowsButton"   Content="Удалить строки" FontSize="16" Width="150" 
+                                Click="DeleteRowsButton_Click" Height="26" Margin="0,0,15,0" IsEnabled="False"/>
+
+                    <Button x:Name="DeleteSensorButton" Content="Удалить датчик" FontSize="16" Width="150" 
+                            Click="DeleteSensorButton_Click" Height="26"/>
+
+                </StackPanel>
+
+                <Button x:Name="ExportCoefficientsButton" Content="Экспортировать коэффициенты" Width="315" Grid.Row="0"
+                        HorizontalAlignment="Left"  VerticalAlignment="Top" FontSize="16" Click="ExportCoefficientsButton_Click" Height="26"/>
+                
+            </StackPanel>
+
+            
+            
+        </Grid>
+        
+        <TabControl x:Name="TablesTabControl" Grid.Row="1" SelectionChanged="TablesTabControl_SelectionChanged">
+            
+            <TabItem Header="Характеризация">
+                
+                <control:FilterDataGrid x:Name="FilteredDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                    
+                    <control:FilterDataGrid.Columns>
+
+                        <control:DataGridTextColumn Header="Дата"       Width="115" CanUserResize="False"   Binding="{Binding DateTime, StringFormat=\{0:dd.MM.yyyy HH:mm:ss\}}"/>
+                        <control:DataGridTextColumn Header="T, °C"      Width="*"   CanUserResize="False"   Binding="{Binding Temperature}" IsColumnFiltered="True" />
+                        <control:DataGridTextColumn Header="Диапазон"   Width="*"   CanUserResize="False"   Binding="{Binding Range}"       IsColumnFiltered="True" />
+                        <control:DataGridTextColumn Header="P, кПа"     Width="*"   CanUserResize="False"   Binding="{Binding Pressure}"    IsColumnFiltered="True" />
+                        <control:DataGridTextColumn Header="U, мВ"      Width="*"   CanUserResize="False"   Binding="{Binding Voltage}"     />
+                        <control:DataGridTextColumn Header="R, Ом"      Width="*"   CanUserResize="False"   Binding="{Binding Resistance}"  />
+                        <control:DataGridTextColumn Header="Отклонение" Width="*"   CanUserResize="False"   Binding="{Binding Deviation}"   />
+                        
+                    </control:FilterDataGrid.Columns>
+                    
+                </control:FilterDataGrid>
+                
+            </TabItem>
+            
+            <TabItem Header="Верификация">
+                
+                <control:FilterDataGrid x:Name="VerifiedDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                    
+                    <control:FilterDataGrid.Columns>
+                        
+                        <control:DataGridTextColumn Header="Дата"           Width="115" MinWidth="115"  Binding="{Binding DateTime, StringFormat=\{0:dd.MM.yyyy HH:mm:ss\}}"/>
+                        <control:DataGridTextColumn Header="T, °C"          Width="*"   MinWidth="55"   Binding="{Binding Temperature}"     IsColumnFiltered="True"/>
+                        <control:DataGridTextColumn Header="НПИ, кПа"       Width="*"   MinWidth="84"   Binding="{Binding NPI}"             IsColumnFiltered="True"/>
+                        <control:DataGridTextColumn Header="ВПИ, кПа"       Width="*"   MinWidth="80"   Binding="{Binding VPI}"             IsColumnFiltered="True"/>
+                        <control:DataGridTextColumn Header="P зад., кПа"    Width="*"   MinWidth="87"   Binding="{Binding PressureGiven}"   IsColumnFiltered="True"/>
+                        <control:DataGridTextColumn Header="P факт., кПа"   Width="*"   MinWidth="74"   Binding="{Binding PressureReal}"    />
+                        <control:DataGridTextColumn Header="I расч., мА"    Width="*"   MinWidth="86"   Binding="{Binding CurrentGiven}"    IsColumnFiltered="True"/>
+                        <control:DataGridTextColumn Header="I факт., мА"    Width="*"   MinWidth="66"   Binding="{Binding CurrentReal}"     />
+                        <control:DataGridTextColumn Header="U, мВ"          Width="*"   MinWidth="61" Binding="{Binding Voltage}"         />
+                        <control:DataGridTextColumn Header="R, Ом"          Width="*"   MinWidth="65" Binding="{Binding Resistance}"      />
+                        
+                    </control:FilterDataGrid.Columns>
+                    
+                </control:FilterDataGrid>
+                
+            </TabItem>
+            
+            <TabItem Header="Коэффициенты">
+                
+                <Grid>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28"  />
+                        <RowDefinition Height="*"   />
+                    </Grid.RowDefinitions>
+                    
+                    <control:FilterDataGrid Grid.RowSpan="2" x:Name="SensorCoefficientsDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                        
+                        <control:FilterDataGrid.Columns>
+                            
+                            <control:DataGridTextColumn Header="Дата"       CanUserSort="False" Width="115" CanUserResize="False"   Binding="{Binding CoefficientsDate, StringFormat=\{0:dd.MM.yyyy\}, ConverterCulture='ru-RU'}" IsColumnFiltered="True"/>
+                            <control:DataGridTextColumn Header="Индекс"     CanUserSort="False" Width="50"  CanUserResize="False"   Binding="{Binding CoefficientIndex}"/>
+                            <control:DataGridTextColumn Header="Значение"   CanUserSort="False" Width="*"   CanUserResize="False"   Binding="{Binding CoefficientValue}"/>
+                            
+                        </control:FilterDataGrid.Columns>
+                        
+                    </control:FilterDataGrid>
+                    
+                    
+                    
+                </Grid>
+                
+            </TabItem>
+            
+        </TabControl>
+        
+    </Grid>
+    
+</Window>

@@ -1,0 +1,44 @@
+﻿<Window x:Class         ="SensorFilter.ErrorLogWindow"
+        xmlns           ="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x         ="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d         ="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc        ="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:control   ="clr-namespace:FilterDataGrid;assembly=FilterDataGrid"
+        xmlns:local     ="clr-namespace:SensorFilter"
+        mc:Ignorable    ="d"
+        MinHeight="361" MinWidth="500"
+        Title="Список ошибок" Height="361" Width="700" Icon="/icon.ico">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"  />
+            <RowDefinition Height="*"   />
+        </Grid.RowDefinitions>
+
+        <Menu Height="20" VerticalAlignment="Top">
+
+            <MenuItem Header="Файл" Height="20">
+                
+                <MenuItem Header="Сохранить"    Click="SaveLog" />
+                <MenuItem Header="Закрыть"      Click="CloseLog"/>
+                
+            </MenuItem>
+
+        </Menu>
+
+        <control:FilterDataGrid Grid.Row="1" x:Name="ErrorDataGrid" 
+                                AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Visible" IsReadOnly="True" ItemsSource="{Binding}" FilterLanguage="Russian">
+            
+            <control:FilterDataGrid.Columns>
+                <control:DataGridTextColumn Header="Дата"           Binding="{Binding Date, StringFormat=\{0:dd.MM.yyyy HH:mm:ss\}}"
+                                                                                                        Width="110" MinWidth="110"  />
+                <control:DataGridTextColumn Header="Файл"           Binding="{Binding FileName}"        Width="140" MinWidth="100"  />
+                <control:DataGridTextColumn Header="Критичность"    Binding="{Binding Criticality}"     Width="120" MinWidth="100"  IsColumnFiltered="True" />
+                <control:DataGridTextColumn Header="Ошибка"         Binding="{Binding ErrorMessage}"    Width="*"   MinWidth="100"  IsColumnFiltered="True" />
+            </control:FilterDataGrid.Columns>
+
+        </control:FilterDataGrid>
+        
+    </Grid>
+    
+</Window>

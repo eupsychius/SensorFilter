@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SensorFilter", "SensorFilter\SensorFilter.csproj", "{A8A37A19-E710-443B-AA4B-1D5E1826E80B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A7BA76EB-E927-45FB-BCF6-754394C212F8}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8A37A19-E710-443B-AA4B-1D5E1826E80B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8A37A19-E710-443B-AA4B-1D5E1826E80B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8A37A19-E710-443B-AA4B-1D5E1826E80B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8A37A19-E710-443B-AA4B-1D5E1826E80B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5CEC7283-6111-4566-974E-BE687FADBD79}
+	EndGlobalSection
+EndGlobal

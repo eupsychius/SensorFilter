@@ -1,0 +1,74 @@
+﻿<Window x:Class="SensorFilter.SettingsWindow"
+        xmlns           = "http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x         = "http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d         = "http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc        = "http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local     = "clr-namespace:SensorFilter"
+        mc:Ignorable    = "d"
+        Title="Настройки программы"
+        WindowStartupLocation="CenterScreen"
+        Height="361" Width="450"
+        ResizeMode="NoResize" Icon="/icon.ico">
+    <Grid>
+        <StackPanel VerticalAlignment="Top" Margin="20,5,20,0">
+            <GroupBox FontSize="16" x:Name="Settings"   Header="Путь до базы данных" Margin="0,0,0,10" >
+                <Grid>
+                    <TextBox    Height="24" Margin="5,5,34,5" x:Name="DbPathText"
+                                IsReadOnly="True" FontSize="14"/>
+                    <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectDbButton"
+                                Content="🗀" FontWeight="Bold" Click="SelectDbButton_Click" HorizontalAlignment="Right" />
+                </Grid>
+            </GroupBox>
+
+            <GroupBox FontSize="16" x:Name="AdminGrBox" Header="Настройки администратора" >
+                <StackPanel>
+                    
+                    <Button x:Name="CreateDbButton" Content="Создать базу данных" FontSize="16" Click="CreateDbButton_Click" Margin="5" />
+                    
+                    <TextBlock Text="Архив БД" FontSize="16"/>
+                    
+                    <Grid>
+                        <Grid x:Name="ScanSyncStackPanel" Visibility="Visible">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column ="0">
+                                <Button Margin="5" Content="Сканировать"    Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"                       />
+                                <Button Margin="5" Content="Прервать"       Name="StopScanButton"       Click="StopScanButton_Click"        Visibility="Hidden" />
+                            </Grid>
+                            
+                            <Button Grid.Column="1" Margin="5" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" />
+                            
+                        </Grid>
+
+                        <Grid Margin="5" x:Name="SyncProgress" Visibility="Hidden">
+                            <ProgressBar    x:Name="SyncProgressBar"/>
+                            <TextBlock      x:Name="ProgressText"
+                                            FontSize="16" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                            <Button         x:Name="StopButton"
+                                            Width="20" Height="20" FontSize="16" HorizontalAlignment="Right" Margin="0,0,2,0" Click="StopButton_Click">
+                                <TextBlock Text="◼️" Margin="0,-4,0,0"/>
+                            </Button>
+                        </Grid>
+                        
+                    </Grid>
+                    
+                    <TextBlock Text="Путь до архива записей" FontSize="16" />
+                    
+                    <Grid>
+                        <TextBox    Height="24" Margin="5,5,34,5" x:Name="ArchivePathText"
+                                    IsReadOnly="True" FontSize="14"/>
+                        <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectArchiveButton"
+                                    Content="🗀" FontWeight="Bold" Click="SelectArchiveButton_Click" HorizontalAlignment="Right" />
+                    </Grid>
+                    
+                </StackPanel>
+                
+            </GroupBox>
+            
+        </StackPanel>
+        
+        <Button x:Name="SaveButton" Content="Сохранить" Width="150" FontSize="20" Margin="0,0,0,20" Click="SaveButton_Click" VerticalAlignment="Bottom"/>
+    </Grid>
+</Window>

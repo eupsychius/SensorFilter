@@ -1,0 +1,104 @@
+﻿<Window x:Class="SensorFilter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SensorFilter"
+        mc:Ignorable="d"
+        Title="База данных характеризации датчиков ЭнИ"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" Icon="/icon.ico" Width="450" Height="360.26" >
+    
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"  />
+            <RowDefinition Height="*"   />
+        </Grid.RowDefinitions>
+        
+        <Menu Height="20" VerticalAlignment="Top">
+            
+            <MenuItem Header="Файл"         Height="20">
+                <MenuItem Header="Закрыть" Click="CloseApp"/>
+            </MenuItem>
+            
+            <MenuItem Header="Параметры"    Height="20">
+                <MenuItem Header="Настройки"            Click="GoToSettingsWindow"/>
+                <Separator/>
+                <MenuItem Header="Режим администратора" Click="ToggleAdminRights" IsCheckable="True" x:Name="AdmRights"/>
+            </MenuItem>
+            
+            <MenuItem Header="Справка"      Height="20">
+                <MenuItem Header="О программе" Click="GoToCreditsWindow"/>
+            </MenuItem>
+            
+        </Menu>
+        
+        <StackPanel x:Name="SearchTools" Margin="20,8,20,20" VerticalAlignment="Top" Grid.Row="1" >
+            
+            <GroupBox FontSize="16" Margin="0,0,0,7" Header="Поиск по серийному номеру">
+                
+                <Grid>
+                    
+                    <Grid.ColumnDefinitions>
+                        
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox    Grid.Column="0" Margin="5" Height="26" FontSize="16"    Name="SortBySerialIdTextBox"
+                                KeyDown="SortBySerialIdTextBox_KeyDown" Width="180"/>
+                    <Button     Grid.Column="1" Margin="5" Height="26" FontSize="16"    Name="SearchButton"
+                                Content="Поиск"     Click="SearchButton_Click" Width="180"/>
+                    
+                </Grid>
+                
+            </GroupBox>
+
+            <GroupBox FontSize="16" Header="Поиск по дате">
+                
+                <Grid>
+                    
+                    <Grid.ColumnDefinitions>
+                        
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        
+                    </Grid.ColumnDefinitions>
+
+                    <Calendar   Grid.Column="0"
+                                x:Name="MonthPickerCalendar" DisplayModeChanged="MonthPickerCalendar_DisplayModeChanged"
+                                DisplayMode="Year" SelectionMode="None" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="5">
+                        
+                        <TextBlock  FontSize="16" Text="Тип устройства" Width="180"/>
+                        <ComboBox   FontSize="14" x:Name="ScannerTypeCombobox" SelectedValuePath="Content"
+                                    SelectionChanged="ScannerTypeCombobox_SelectionChanged" Margin="0,5,0,0" Width="180">
+                            
+                            <ComboBoxItem Content="Не указано"  />
+                            <ComboBoxItem Content="ЭНИ-100"     />
+                            <ComboBoxItem Content="ЭНИ-12"      />
+                            
+                        </ComboBox>
+                        
+                        <TextBlock  FontSize="16" Text="Модель устройства" Margin="0,5,0,0" Width="180"/>
+                        <ComboBox   FontSize="14" x:Name="ScannerModelCombobox" SelectedValuePath="Content"
+                                    SelectionChanged="ScannerModelCombobox_SelectionChanged" Margin="0,5,0,0" Width="180"/>
+
+                        <TextBlock  FontSize="16" Text="Серийный номер" Margin="0,5,0,0" Width="180"/>
+                        <ComboBox   FontSize="14" x:Name="SortedByDateComboBox" IsEnabled="False"
+                                    SelectionChanged ="SortedByDateComboBox_SelectionChanged" Margin="0,5,0,0" Width="180"   />
+                        
+                    </StackPanel>
+                    
+                </Grid>
+                
+            </GroupBox>
+            
+        </StackPanel>
+        
+    </Grid>
+    
+</Window>
