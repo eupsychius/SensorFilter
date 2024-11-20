@@ -34,21 +34,21 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column ="0">
-                                <Button Margin="5" Content="Сканировать"    Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"                       />
-                                <Button Margin="5" Content="Прервать"       Name="StopScanButton"       Click="StopScanButton_Click"        Visibility="Hidden" />
+                                <Button Margin="5" Height="24" Content="Сканировать"    Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"                       />
+                                <Button Margin="5" Height="24" Content="Прервать"       Name="StopScanButton"       Click="StopScanButton_Click"        Visibility="Hidden" />
                             </Grid>
                             
-                            <Button Grid.Column="1" Margin="5" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" />
+                            <Button Grid.Column="1" Margin="5" Height="24" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" />
                             
                         </Grid>
 
                         <Grid Margin="5" x:Name="SyncProgress" Visibility="Hidden">
-                            <ProgressBar    x:Name="SyncProgressBar"/>
+                            <ProgressBar    x:Name="SyncProgressBar" Height="24" Margin="0,5,29,5"/>
                             <TextBlock      x:Name="ProgressText"
                                             FontSize="16" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
                             <Button         x:Name="StopButton"
-                                            Width="20" Height="20" FontSize="16" HorizontalAlignment="Right" Margin="0,0,2,0" Click="StopButton_Click">
-                                <TextBlock Text="◼️" Margin="0,-4,0,0"/>
+                                            Width="24" Height="24" FontSize="20" HorizontalAlignment="Right" Click="StopButton_Click">
+                                <TextBlock Text="◼️" Margin="-1,-6,0,0"/>
                             </Button>
                         </Grid>
                         

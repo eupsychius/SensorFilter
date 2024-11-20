@@ -113,8 +113,8 @@ namespace SensorFilter
             return $"Data Source={Properties.DataBase.Default.DataBasePath};Version=3;";
         }
 
-        // Получаем модели по серийнику
-        public (List<Sensor>, List<string>) GetSensorBySerialNumber(string serialNumber)
+        // Получаем модели и типы по серийному номеру
+        public (List<Sensor>, List<string>, List<string>) GetSensorBySerialNumber(string serialNumber)
         {
             try
             {
@@ -128,7 +128,11 @@ namespace SensorFilter
                     string modelQuery = "SELECT DISTINCT Model FROM Sensor WHERE SerialNumber = @SerialNumber";
                     var uniqueModels = connection.Query<string>(modelQuery, new { SerialNumber = serialNumber }).AsList();
 
-                    return (sensorList, uniqueModels);
+                    // Получаем список уникальных типов
+                    string typeQuery = "SELECT DISTINCT Type FROM Sensor WHERE SerialNumber = @SerialNumber";
+                    var uniqueTypes = connection.Query<string>(typeQuery, new { SerialNumber = serialNumber }).AsList();
+
+                    return (sensorList, uniqueTypes, uniqueModels);
                 }
             }
             catch
@@ -139,9 +143,10 @@ namespace SensorFilter
                     "Ошибка",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                return (null, null);
+                return (null, null, null);
             }
         }
+
 
         // Получаем характеризацию
         public List<SensorData> GetCharacterisationDataBySerialNumber(string serialNumber, string model)
@@ -408,8 +413,8 @@ namespace SensorFilter
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@dateTime",        dateTime);
-                command.Parameters.AddWithValue("@model",           model);
+                command.Parameters.AddWithValue("@dateTime",        dateTime    );
+                command.Parameters.AddWithValue("@model",           model       );
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
@@ -529,6 +534,24 @@ namespace SensorFilter
                 long coefficientCount = connection.ExecuteScalar<long>(coefficientQuery, new { SerialNumber = serialNumber, Model = model });
 
                 return sensorDataCount > 0 || verificationCount > 0 || coefficientCount > 0;
+            }
+        }
+
+        public bool SensorExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        {
+            string query = @"
+            SELECT COUNT(*)
+            FROM Sensor
+            WHERE SerialNumber = @SerialNumber AND Type = @Type AND Model = @Model";
+
+            using (var command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@SerialNumber", serialNumber);
+                command.Parameters.AddWithValue("@Type", type);
+                command.Parameters.AddWithValue("@Model", model);
+
+                long count = (long)command.ExecuteScalar();
+                return count > 0; // Если count > 0, датчик уже существует
             }
         }
 

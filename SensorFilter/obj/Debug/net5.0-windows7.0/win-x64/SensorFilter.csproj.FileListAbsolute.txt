@@ -12,7 +12,6 @@ C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\System.Data.SQLite.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\System.Data.SqlClient.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\System.Data.SQLite.EF6.dll
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\sni.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\SQLite.Interop.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\Microsoft.CSharp.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\Microsoft.VisualBasic.Core.dll
@@ -543,3 +542,4 @@ C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0
 C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\ErrorLogWindow.baml
 C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\CreditsWindow.g.cs
 C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\CreditsWindow.baml
+C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\SensorFilter.sourcelink.json

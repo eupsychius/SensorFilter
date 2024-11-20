@@ -11,9 +11,9 @@
         "dependencies": {
           "Dapper": "2.1.35",
           "FilterDataGrid": "1.2.8",
-          "Microsoft.NET.ILLink.Analyzers": "7.0.100-1.23401.1",
-          "Microsoft.NET.ILLink.Tasks": "7.0.100-1.23401.1",
           "System.Data.SQLite": "1.0.119",
+          "System.Data.SqlClient": "4.9.0",
+          "System.Drawing.Common": "9.0.0",
           "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "5.0.17",
           "runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64": "5.0.17"
         },
@@ -953,10 +953,6 @@
             "assemblyVersion": "4.0.0.0",
             "fileVersion": "5.0.20.51904"
           },
-          "System.Drawing.Common.dll": {
-            "assemblyVersion": "5.0.0.2",
-            "fileVersion": "5.0.1221.52207"
-          },
           "System.Drawing.Design.dll": {
             "assemblyVersion": "5.0.17.0",
             "fileVersion": "5.0.1722.21504"
@@ -1090,7 +1086,7 @@
           "System.CodeDom": "4.7.0",
           "System.ComponentModel.Annotations": "4.7.0",
           "System.Configuration.ConfigurationManager": "4.7.0",
-          "System.Data.SqlClient": "4.8.1"
+          "System.Data.SqlClient": "4.9.0"
         },
         "runtime": {
           "lib/netstandard2.1/EntityFramework.SqlServer.dll": {
@@ -1112,36 +1108,7 @@
         }
       },
       "Microsoft.CSharp/4.7.0": {},
-      "Microsoft.NET.ILLink.Analyzers/7.0.100-1.23401.1": {},
-      "Microsoft.NET.ILLink.Tasks/7.0.100-1.23401.1": {},
       "Microsoft.NETCore.Platforms/3.1.0": {},
-      "Microsoft.Win32.Registry/4.7.0": {
-        "dependencies": {
-          "System.Security.AccessControl": "4.7.0",
-          "System.Security.Principal.Windows": "4.7.0"
-        }
-      },
-      "Microsoft.Win32.SystemEvents/4.7.0": {
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "3.1.0"
-        }
-      },
-      "runtime.native.System.Data.SqlClient.sni/4.7.0": {
-        "dependencies": {
-          "runtime.win-arm64.runtime.native.System.Data.SqlClient.sni": "4.4.0",
-          "runtime.win-x64.runtime.native.System.Data.SqlClient.sni": "4.4.0",
-          "runtime.win-x86.runtime.native.System.Data.SqlClient.sni": "4.4.0"
-        }
-      },
-      "runtime.win-arm64.runtime.native.System.Data.SqlClient.sni/4.4.0": {},
-      "runtime.win-x64.runtime.native.System.Data.SqlClient.sni/4.4.0": {
-        "native": {
-          "runtimes/win-x64/native/sni.dll": {
-            "fileVersion": "4.6.25512.1"
-          }
-        }
-      },
-      "runtime.win-x86.runtime.native.System.Data.SqlClient.sni/4.4.0": {},
       "Stub.System.Data.SQLite.Core.NetStandard/1.0.119": {
         "runtime": {
           "lib/netstandard2.1/System.Data.SQLite.dll": {
@@ -1163,16 +1130,11 @@
           "System.Security.Permissions": "4.7.0"
         }
       },
-      "System.Data.SqlClient/4.8.1": {
-        "dependencies": {
-          "Microsoft.Win32.Registry": "4.7.0",
-          "System.Security.Principal.Windows": "4.7.0",
-          "runtime.native.System.Data.SqlClient.sni": "4.7.0"
-        },
+      "System.Data.SqlClient/4.9.0": {
         "runtime": {
-          "runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll": {
-            "assemblyVersion": "4.6.1.1",
-            "fileVersion": "4.700.20.6702"
+          "lib/netstandard2.0/System.Data.SqlClient.dll": {
+            "assemblyVersion": "4.6.1.6",
+            "fileVersion": "4.900.24.56208"
           }
         }
       },
@@ -1198,10 +1160,12 @@
           }
         }
       },
-      "System.Drawing.Common/4.7.0": {
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "3.1.0",
-          "Microsoft.Win32.SystemEvents": "4.7.0"
+      "System.Drawing.Common/9.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/System.Drawing.Common.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.24.52901"
+          }
         }
       },
       "System.Security.AccessControl/4.7.0": {
@@ -1220,7 +1184,7 @@
       "System.Security.Principal.Windows/4.7.0": {},
       "System.Windows.Extensions/4.7.0": {
         "dependencies": {
-          "System.Drawing.Common": "4.7.0"
+          "System.Drawing.Common": "9.0.0"
         }
       }
     }
@@ -1269,68 +1233,12 @@
       "path": "microsoft.csharp/4.7.0",
       "hashPath": "microsoft.csharp.4.7.0.nupkg.sha512"
     },
-    "Microsoft.NET.ILLink.Analyzers/7.0.100-1.23401.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-XirkjOLc5Vc3HsXRc2Z6ZbQv6l0RvWgJa/31w7XqZ914MoSi3H3OCNRMWFw7H2EYfsnKbokFfhCcysAmUcEOgw==",
-      "path": "microsoft.net.illink.analyzers/7.0.100-1.23401.1",
-      "hashPath": "microsoft.net.illink.analyzers.7.0.100-1.23401.1.nupkg.sha512"
-    },
-    "Microsoft.NET.ILLink.Tasks/7.0.100-1.23401.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-mI6vCdPEhluLtMn/GV0texEWg5oAPQWCCE4LWspM+Bmy75Nd4EQsziQXrdOFqNeSBQMrxDX9C/O5Xi3kpKSMIw==",
-      "path": "microsoft.net.illink.tasks/7.0.100-1.23401.1",
-      "hashPath": "microsoft.net.illink.tasks.7.0.100-1.23401.1.nupkg.sha512"
-    },
     "Microsoft.NETCore.Platforms/3.1.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-z7aeg8oHln2CuNulfhiLYxCVMPEwBl3rzicjvIX+4sUuCwvXw5oXQEtbiU2c0z4qYL5L3Kmx0mMA/+t/SbY67w==",
       "path": "microsoft.netcore.platforms/3.1.0",
       "hashPath": "microsoft.netcore.platforms.3.1.0.nupkg.sha512"
-    },
-    "Microsoft.Win32.Registry/4.7.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-KSrRMb5vNi0CWSGG1++id2ZOs/1QhRqROt+qgbEAdQuGjGrFcl4AOl4/exGPUYz2wUnU42nvJqon1T3U0kPXLA==",
-      "path": "microsoft.win32.registry/4.7.0",
-      "hashPath": "microsoft.win32.registry.4.7.0.nupkg.sha512"
-    },
-    "Microsoft.Win32.SystemEvents/4.7.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-mtVirZr++rq+XCDITMUdnETD59XoeMxSpLRIII7JRI6Yj0LEDiO1pPn0ktlnIj12Ix8bfvQqQDMMIF9wC98oCA==",
-      "path": "microsoft.win32.systemevents/4.7.0",
-      "hashPath": "microsoft.win32.systemevents.4.7.0.nupkg.sha512"
-    },
-    "runtime.native.System.Data.SqlClient.sni/4.7.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-9kyFSIdN3T0qjDQ2R0HRXYIhS3l5psBzQi6qqhdLz+SzFyEy4sVxNOke+yyYv8Cu8rPER12c3RDjLT8wF3WBYQ==",
-      "path": "runtime.native.system.data.sqlclient.sni/4.7.0",
-      "hashPath": "runtime.native.system.data.sqlclient.sni.4.7.0.nupkg.sha512"
-    },
-    "runtime.win-arm64.runtime.native.System.Data.SqlClient.sni/4.4.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-LbrynESTp3bm5O/+jGL8v0Qg5SJlTV08lpIpFesXjF6uGNMWqFnUQbYBJwZTeua6E/Y7FIM1C54Ey1btLWupdg==",
-      "path": "runtime.win-arm64.runtime.native.system.data.sqlclient.sni/4.4.0",
-      "hashPath": "runtime.win-arm64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
-    },
-    "runtime.win-x64.runtime.native.System.Data.SqlClient.sni/4.4.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-38ugOfkYJqJoX9g6EYRlZB5U2ZJH51UP8ptxZgdpS07FgOEToV+lS11ouNK2PM12Pr6X/PpT5jK82G3DwH/SxQ==",
-      "path": "runtime.win-x64.runtime.native.system.data.sqlclient.sni/4.4.0",
-      "hashPath": "runtime.win-x64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
-    },
-    "runtime.win-x86.runtime.native.System.Data.SqlClient.sni/4.4.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA==",
-      "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
-      "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
     },
     "Stub.System.Data.SQLite.Core.NetStandard/1.0.119": {
       "type": "package",
@@ -1360,12 +1268,12 @@
       "path": "system.configuration.configurationmanager/4.7.0",
       "hashPath": "system.configuration.configurationmanager.4.7.0.nupkg.sha512"
     },
-    "System.Data.SqlClient/4.8.1": {
+    "System.Data.SqlClient/4.9.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-HKLykcv6eZLbLnSMnlQ6Os4+UAmFE+AgYm92CTvJYeTOBtOYusX3qu8OoGhFrnKZax91UcLcDo5vPrqvJUTSNQ==",
-      "path": "system.data.sqlclient/4.8.1",
-      "hashPath": "system.data.sqlclient.4.8.1.nupkg.sha512"
+      "sha512": "sha512-j4KJO+vC62NyUtNHz854njEqXbT8OmAa5jb1nrGfYWBOcggyYUQE0w/snXeaCjdvkSKWuUD+hfvlbN8pTrJTXg==",
+      "path": "system.data.sqlclient/4.9.0",
+      "hashPath": "system.data.sqlclient.4.9.0.nupkg.sha512"
     },
     "System.Data.SQLite/1.0.119": {
       "type": "package",
@@ -1388,12 +1296,12 @@
       "path": "system.data.sqlite.ef6/1.0.119",
       "hashPath": "system.data.sqlite.ef6.1.0.119.nupkg.sha512"
     },
-    "System.Drawing.Common/4.7.0": {
+    "System.Drawing.Common/9.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-v+XbyYHaZjDfn0ENmJEV1VYLgGgCTx1gnfOBcppowbpOAriglYgGCvFCPr2EEZyBvXlpxbEsTwkOlInl107ahA==",
-      "path": "system.drawing.common/4.7.0",
-      "hashPath": "system.drawing.common.4.7.0.nupkg.sha512"
+      "sha512": "sha512-uoozjI3+dlgKh2onFJcz8aNLh6TRCPlLSh8Dbuljc8CdvqXrxHOVysJlrHvlsOCqceqGBR1wrMPxlnzzhynktw==",
+      "path": "system.drawing.common/9.0.0",
+      "hashPath": "system.drawing.common.9.0.0.nupkg.sha512"
     },
     "System.Security.AccessControl/4.7.0": {
       "type": "package",

@@ -256,7 +256,7 @@ namespace SensorFilter
                 if (int.TryParse(serialNumberText, out int serialNumber))
                 {
                     // Получаем данные и количество уникальных моделей
-                    var (sensor, uniqueModels) = databaseHelper.GetSensorBySerialNumber(serialNumberText);
+                    var (sensor, uniqueTypes, uniqueModels) = databaseHelper.GetSensorBySerialNumber(serialNumberText);
 
                     if (sensor != null && sensor.Count > 0)
                     {
@@ -268,7 +268,7 @@ namespace SensorFilter
                         else if (uniqueModels.Count > 1)
                         {
                             // Открываем диалоговое окно для выбора модели
-                            SelectModelWindow selectModelWindow = new SelectModelWindow(uniqueModels);
+                            SelectModelWindow selectModelWindow = new SelectModelWindow(uniqueTypes, uniqueModels);
                             if (selectModelWindow.ShowDialog() == true)
                             {
                                 // Получаем выбранную модель из окна

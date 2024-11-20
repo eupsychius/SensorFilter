@@ -95,18 +95,18 @@ namespace SensorFilter
                         date = dateTime;
 
                         // Проверяем наличие дубликатов по серийному номеру и дате
-                        if (databaseHelper.CheckCharacterisationExists(serialNumber, dateTime: dateTime, model, connection))
-                        {
-                            skippedCharacterisation++; // Если уже существует, инкрементируем счетчик
+                        //if (databaseHelper.CheckCharacterisationExists(serialNumber, dateTime: dateTime, model, connection))
+                        //{
+                        //    skippedCharacterisation++; // Если уже существует, инкрементируем счетчик
 
-                            if (!charDupeWarned)
-                            {
-                                ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки характеризации уже есть в базе данных и были пропущены");
-                                charDupeWarned = true;
-                            }
+                        //    if (!charDupeWarned)
+                        //    {
+                        //        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки характеризации уже есть в базе данных и были пропущены");
+                        //        charDupeWarned = true;
+                        //    }
 
-                            continue;
-                        }
+                        //    continue;
+                        //}
 
                         // Собираем данные для пакетной вставки
                         sensorDataList.Add(new SensorData
@@ -149,18 +149,18 @@ namespace SensorFilter
                             DateTime coefficientsDate = date;
 
                             // Проверяем наличие дубликатов коэффициентов
-                            if (databaseHelper.CheckCoefficientExists(serialNumber, coefficientIndex, model, date, connection))
-                            {
-                                skippedCoefficients++;
+                            //if (databaseHelper.CheckCoefficientExists(serialNumber, coefficientIndex, model, date, connection))
+                            //{
+                            //    skippedCoefficients++;
 
-                                if (!coefDupeWarned)
-                                {
-                                    ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки коэффициентов уже есть в базе данных и были пропущены");
-                                    coefDupeWarned = true;
-                                }
+                            //    if (!coefDupeWarned)
+                            //    {
+                            //        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки коэффициентов уже есть в базе данных и были пропущены");
+                            //        coefDupeWarned = true;
+                            //    }
 
-                                continue;
-                            }
+                            //    continue;
+                            //}
 
                             sensorCoefficientList.Add(new SensorCoefficients
                             {
@@ -272,18 +272,18 @@ namespace SensorFilter
                         }
                     }
                     // Проверяем наличие дубликатов по серийному номеру и дате
-                    if (databaseHelper.CheckVerificationExists(serialNumber, dateTime, model, connection))
-                    {
-                        skippedVerification++; // Если уже существует, инкрементируем счетчик
+                    //if (databaseHelper.CheckVerificationExists(serialNumber, dateTime, model, connection))
+                    //{
+                    //    skippedVerification++; // Если уже существует, инкрементируем счетчик
 
-                        if (!verDupeWarned)
-                        {
-                            ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки файла уже есть в базе данных и были пропущены");
-                            verDupeWarned = true;
-                        }
+                    //    if (!verDupeWarned)
+                    //    {
+                    //        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки файла уже есть в базе данных и были пропущены");
+                    //        verDupeWarned = true;
+                    //    }
 
-                        continue;
-                    }
+                    //    continue;
+                    //}
 
                     verificationDataList.Add(new SensorVerification
                     {
