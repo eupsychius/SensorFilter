@@ -30,11 +30,23 @@
                                 AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Visible" IsReadOnly="True" ItemsSource="{Binding}" FilterLanguage="Russian">
             
             <control:FilterDataGrid.Columns>
-                <control:DataGridTextColumn Header="Дата"           Binding="{Binding Date, StringFormat=\{0:dd.MM.yyyy HH:mm:ss\}}"
-                                                                                                        Width="110" MinWidth="110"  />
-                <control:DataGridTextColumn Header="Файл"           Binding="{Binding FileName}"        Width="140" MinWidth="100"  />
-                <control:DataGridTextColumn Header="Критичность"    Binding="{Binding Criticality}"     Width="120" MinWidth="100"  IsColumnFiltered="True" />
-                <control:DataGridTextColumn Header="Ошибка"         Binding="{Binding ErrorMessage}"    Width="*"   MinWidth="100"  IsColumnFiltered="True" />
+                <control:DataGridTextColumn     Header="Дата"           Width="115" MinWidth="110" 
+                                                Binding="{Binding Date, StringFormat=\{0:dd.MM.yyyy HH:mm:ss\}}"/>
+                <control:DataGridTemplateColumn Header="Файл"           Width="140" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Hyperlink NavigateUri="{Binding FileName}" RequestNavigate="Hyperlink_RequestNavigate">
+                            <TextBlock Text="{Binding FileName}" />
+                        </Hyperlink>
+                    </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </control:DataGridTemplateColumn>
+                <control:DataGridTextColumn     Header="Критичность"    Width="120" MinWidth="100"
+                                                Binding="{Binding Criticality}" IsColumnFiltered="True" />
+                <control:DataGridTextColumn     Header="Ошибка"         Width="*"   MinWidth="100"
+                                                Binding="{Binding ErrorMessage}" IsColumnFiltered="True" />
             </control:FilterDataGrid.Columns>
 
         </control:FilterDataGrid>

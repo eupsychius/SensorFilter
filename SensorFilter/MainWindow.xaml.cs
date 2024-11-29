@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using MessageBox = System.Windows.MessageBox;
 
 namespace SensorFilter
@@ -387,7 +388,16 @@ namespace SensorFilter
                         selectedType,
                         selectedModel);
                         if (SortedByDateComboBox.Items.Count != 0)
+                        {
                             SortedByDateComboBox.IsEnabled = true;
+
+                            var textbox = (TextBox)SortedByDateComboBox.Template.FindName("PART_EditableTextBox", SortedByDateComboBox);
+                            if (textbox != null)
+                            {
+                                var parent = (Border)textbox.Parent;
+                                parent.Background = Brushes.Yellow;
+                            }
+                        }
                         else
                         {
                             SortedByDateComboBox.IsEnabled = false;
@@ -416,6 +426,12 @@ namespace SensorFilter
             credits         = new CreditsWindow();
             credits.Owner   = this;
             credits.ShowDialog();
+        }
+
+        private void SortedByDateComboBox_Selected(object sender, MouseButtonEventArgs e)
+        {
+            if (!SortedByDateComboBox.IsDropDownOpen)
+                SortedByDateComboBox.IsDropDownOpen = true;
         }
     }
 }

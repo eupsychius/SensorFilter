@@ -61,7 +61,7 @@ namespace SensorFilter {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/SensorFilter;component/selectmodelwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/SensorFilter;V1.0.0.0;component/selectmodelwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\SelectModelWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

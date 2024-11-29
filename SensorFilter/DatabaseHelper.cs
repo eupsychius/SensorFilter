@@ -30,33 +30,37 @@ namespace SensorFilter
                         // Создание таблиц
                         string createSensorTable = @"
                         CREATE TABLE Sensor (
-                        SensorId        INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        Channel         INTEGER     NOT NULL,
-                        SerialNumber    TEXT        NOT NULL,
-                        Type            TEXT        NOT NULL,
-                        Model           TEXT        NOT NULL
+	                    SensorId	        INTEGER,
+	                    Channel	            INTEGER     NOT NULL,
+	                    SerialNumber	    TEXT        NOT NULL,
+	                    Type	            TEXT        NOT NULL,
+	                    Model	            TEXT        NOT NULL,
+	                    HasCharacterisation	INTEGER     DEFAULT 0,
+	                    HasCoefficients	    INTEGER     DEFAULT 0,
+	                    HasVerification	    INTEGER     DEFAULT 0,
+	                    PRIMARY KEY(SensorId AUTOINCREMENT)
                         )";
                         
                         string createSensorDataTable = @"
                         CREATE TABLE IF NOT EXISTS SensorData (
-                        DataId          INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber    TEXT        NOT NULL,
-                        Model           TEXT        NOT NULL,
-                        DateTime        TEXT        NOT NULL,
-                        Temperature     REAL,
-                        Range           INTEGER,
-                        Pressure        REAL,
-                        Voltage         REAL,
-                        Resistance      REAL,
-                        Deviation       REAL,
+                        DataId              INTEGER     PRIMARY KEY AUTOINCREMENT,
+                        SerialNumber        TEXT        NOT NULL,
+                        Model               TEXT        NOT NULL,
+                        DateTime            TEXT        NOT NULL,
+                        Temperature         REAL,
+                        Range               INTEGER,
+                        Pressure            REAL,
+                        Voltage             REAL,
+                        Resistance          REAL,
+                        Deviation           REAL,
                         FOREIGN KEY (SerialNumber) REFERENCES Sensor(SerialNumber)
                         );";
 
                         string createSensorCoefficientsTable = @"
                         CREATE TABLE IF NOT EXISTS SensorCoefficients (
-                        Id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber        INTEGER NOT NULL,
-                        Model               TEXT    NOT NULL,
+                        Id                  INTEGER     PRIMARY KEY AUTOINCREMENT,
+                        SerialNumber        INTEGER     NOT NULL,
+                        Model               TEXT        NOT NULL,
                         CoefficientIndex    INTEGER,
                         CoefficientValue    REAL,
                         CoefficientsDate	DATETIME    NOT NULL
@@ -64,19 +68,19 @@ namespace SensorFilter
 
                         string createSensorVerificationTable = @"
                         CREATE TABLE IF NOT EXISTS SensorVerification (
-                        Id              INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber    INTEGER     NOT NULL,
-                        Model           TEXT        NOT NULL,
-                        DateTime        DATETIME    NOT NULL,
-                        Temperature     REAL,
-                        NPI             REAL,
-                        VPI             REAL,
-                        PressureGiven   REAL,
-                        PressureReal    REAL,
-                        CurrentGiven    REAL,
-                        CurrentReal     REAL,
-                        Voltage         REAL,
-                        Resistance      REAL,
+                        Id                  INTEGER     PRIMARY KEY AUTOINCREMENT,
+                        SerialNumber        INTEGER     NOT NULL,
+                        Model               TEXT        NOT NULL,
+                        DateTime            DATETIME    NOT NULL,
+                        Temperature         REAL,
+                        NPI                 REAL,
+                        VPI                 REAL,
+                        PressureGiven       REAL,
+                        PressureReal        REAL,
+                        CurrentGiven        REAL,
+                        CurrentReal         REAL,
+                        Voltage             REAL,
+                        Resistance          REAL,
                         FOREIGN KEY(SerialNumber) REFERENCES Sensor(SerialNumber)
                         );";
 
@@ -312,6 +316,17 @@ namespace SensorFilter
                     command.Parameters.AddWithValue("@deviation",       characterisation.Deviation);
                     command.ExecuteNonQuery();
                 }
+
+                var update = connection.CreateCommand();
+                update.CommandText = @"
+                UPDATE  Sensor
+                SET     HasCharacterisation = '1'
+                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
+                update.Parameters.AddWithValue("@serialNumber", sensorDataList.First().SerialNumber);
+                update.Parameters.AddWithValue("@model",        sensorDataList.First().Model);
+                update.Parameters.AddWithValue("@type",         sensorDataList.First().Type);
+                update.ExecuteNonQuery();
+
                 transaction.Commit(); // Коммитим транзакцию для групповой вставки
             }
         }
@@ -323,14 +338,14 @@ namespace SensorFilter
                 var command = connection.CreateCommand();
                 command.CommandText = @"
                 INSERT INTO SensorCoefficients 
-                (SerialNumber, 
+                (SerialNumber,
                 Model, 
                 CoefficientIndex, 
                 CoefficientValue,
                 CoefficientsDate) 
                 VALUES 
-                (@serialNumber, 
-                @model, 
+                (@serialNumber,
+                @model,
                 @coefficientIndex, 
                 @coefficientValue,
                 @coefficientsDate)";
@@ -339,12 +354,24 @@ namespace SensorFilter
                 {
                     command.Parameters.Clear();
                     command.Parameters.AddWithValue("@serialNumber",        coefficient.SerialNumber);
+                    command.Parameters.AddWithValue("@type",                coefficient.Type);
                     command.Parameters.AddWithValue("@model",               coefficient.Model);
                     command.Parameters.AddWithValue("@coefficientIndex",    coefficient.CoefficientIndex);
                     command.Parameters.AddWithValue("@coefficientValue",    coefficient.CoefficientValue);
                     command.Parameters.AddWithValue("@coefficientsDate",    coefficient.CoefficientsDate);
                     command.ExecuteNonQuery();
                 }
+
+                var update = connection.CreateCommand();
+                update.CommandText = @"
+                UPDATE  Sensor
+                SET     HasCoefficients = '1'
+                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
+                update.Parameters.AddWithValue("@serialNumber", sensorCoefficientList.First().SerialNumber);
+                update.Parameters.AddWithValue("@model",        sensorCoefficientList.First().Model);
+                update.Parameters.AddWithValue("@type",         sensorCoefficientList.First().Type);
+                update.ExecuteNonQuery();
+
                 transaction.Commit();
             }
         }
@@ -385,35 +412,64 @@ namespace SensorFilter
                 foreach (var verificationData in verificationDataList)
                 {
                     command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@serialNumber",    verificationData.SerialNumber);
-                    command.Parameters.AddWithValue("@model",           verificationData.Model);
-                    command.Parameters.AddWithValue("@dateTime",        verificationData.DateTime);
-                    command.Parameters.AddWithValue("@temperature",     verificationData.Temperature);
-                    command.Parameters.AddWithValue("@npi",             verificationData.NPI);
-                    command.Parameters.AddWithValue("@vpi",             verificationData.VPI);
-                    command.Parameters.AddWithValue("@pressureGiven",   verificationData.PressureGiven);
-                    command.Parameters.AddWithValue("@pressureReal",    verificationData.PressureReal);
-                    command.Parameters.AddWithValue("@currentGiven",    verificationData.CurrentGiven);
-                    command.Parameters.AddWithValue("@currentReal",     verificationData.CurrentReal);
-                    command.Parameters.AddWithValue("@voltage",         verificationData.Voltage);
-                    command.Parameters.AddWithValue("@resistance",      verificationData.Resistance);
+                    command.Parameters.AddWithValue("@serialNumber",    verificationData.SerialNumber   );
+                    command.Parameters.AddWithValue("@model",           verificationData.Model          );
+                    command.Parameters.AddWithValue("@dateTime",        verificationData.DateTime       );
+                    command.Parameters.AddWithValue("@temperature",     verificationData.Temperature    );
+                    command.Parameters.AddWithValue("@npi",             verificationData.NPI            );
+                    command.Parameters.AddWithValue("@vpi",             verificationData.VPI            );
+                    command.Parameters.AddWithValue("@pressureGiven",   verificationData.PressureGiven  );
+                    command.Parameters.AddWithValue("@pressureReal",    verificationData.PressureReal   );
+                    command.Parameters.AddWithValue("@currentGiven",    verificationData.CurrentGiven   );
+                    command.Parameters.AddWithValue("@currentReal",     verificationData.CurrentReal    );
+                    command.Parameters.AddWithValue("@voltage",         verificationData.Voltage        );
+                    command.Parameters.AddWithValue("@resistance",      verificationData.Resistance     );
                     command.ExecuteNonQuery();
                 }
+
+                var update = connection.CreateCommand();
+                update.CommandText = @"
+                UPDATE  Sensor
+                SET     HasVerification = '1'
+                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
+                update.Parameters.AddWithValue("@serialNumber", verificationDataList.First().SerialNumber   );
+                update.Parameters.AddWithValue("@model",        verificationDataList.First().Model          );
+                update.Parameters.AddWithValue("@type",         verificationDataList.First().Type           );
+                update.ExecuteNonQuery();
+
                 transaction.Commit();
             }
         }
 
-        public bool CheckCharacterisationExists(string serialNumber, DateTime dateTime, string model, SQLiteConnection connection)
+        public bool CheckCharacterisationExists(string serialNumber, string type, string model, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
-            FROM SensorData 
-            WHERE SerialNumber = @serialNumber AND DateTime = @dateTime AND Model = @model";
+            FROM Sensor
+            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasCharacterisation = 1";
 
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@dateTime",        dateTime    );
+                command.Parameters.AddWithValue("@type",            type);
+                command.Parameters.AddWithValue("@model",           model);
+
+                long count = (long)command.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
+        public bool CheckCoefficientExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        {
+            string query = @"
+            SELECT COUNT(*) 
+            FROM Sensor
+            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasCoefficients = 1"; ;
+
+            using (var command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
+                command.Parameters.AddWithValue("@type",            type        );
                 command.Parameters.AddWithValue("@model",           model       );
 
                 long count = (long)command.ExecuteScalar();
@@ -421,36 +477,17 @@ namespace SensorFilter
             }
         }
 
-        public bool CheckCoefficientExists(string serialNumber, int coefficientIndex, string model, DateTime coefficientsDate, SQLiteConnection connection)
+        public bool CheckVerificationExists(string serialNumber, string type, string model, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
-            FROM SensorCoefficients 
-            WHERE SerialNumber = @serialNumber AND CoefficientIndex = @coefficientIndex AND Model = @model AND CoefficientsDate = @date";
-
-            using (var command = new SQLiteCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@serialNumber",        serialNumber    );
-                command.Parameters.AddWithValue("@coefficientIndex",    coefficientIndex);
-                command.Parameters.AddWithValue("@model",               model           );
-                command.Parameters.AddWithValue("@date",                coefficientsDate);
-
-                long count = (long)command.ExecuteScalar();
-                return count > 0;
-            }
-        }
-
-        public bool CheckVerificationExists(string serialNumber, DateTime dateTime, string model, SQLiteConnection connection)
-        {
-            string query = @"
-            SELECT COUNT(*) 
-            FROM SensorVerification     
-            WHERE SerialNumber = @serialNumber AND DateTime = @dateTime AND Model = @model";
+            FROM Sensor
+            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasVerification = 1";
 
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@dateTime",        dateTime    );
+                command.Parameters.AddWithValue("@type",            type    );
                 command.Parameters.AddWithValue("@model",           model       );
 
                 long count = (long)command.ExecuteScalar();

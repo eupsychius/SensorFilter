@@ -7,5 +7,6 @@ public class SensorCoefficients
     public int      CoefficientIndex    { get; set; }
     public double   CoefficientValue    { get; set; }
     public string   Model               { get; set; }
+    public string   Type                { get; set; }
     public DateTime CoefficientsDate    { get; set; }
 }

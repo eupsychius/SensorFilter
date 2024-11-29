@@ -61,7 +61,7 @@ namespace SensorFilter {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/SensorFilter;component/dateselectionwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/SensorFilter;V1.0.0.0;component/dateselectionwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\DateSelectionWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

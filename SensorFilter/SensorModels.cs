@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
 
 public class SensorModels
-    // Здесь хранятся списKи моделей датчиKов
+    // Здесь хранятся списки моделей датчиков
 {
     public List<string> Models_EnI100       { get; set; }
     public List<string> Models_EnI12        { get; set; }
+    public List<string> Models_EnI12_M      { get; set; }
     public List<string> Models_NoneSelected { get; set; }
 
     public SensorModels()
     {
-        Models_EnI100 = new List<string>
+        Models_EnI100   = new List<string>
         {
             "2041",
             "2051",
             "2056",
+            "2060",
             "2061",
             "2066",
             "2076",
@@ -25,10 +27,12 @@ public class SensorModels
             "2131",
             "2140",
             "2141",
+            "2150",
             "2151",
             "2152",
             "2156",
             "2159",
+            "2160",
             "2161",
             "2162",
             "2166",
@@ -68,6 +72,7 @@ public class SensorModels
             "2040M",
             "2050K",
             "2050M",
+            "2051K",
             "2056K",
             "2056M",
             "2060K",
@@ -88,6 +93,8 @@ public class SensorModels
             "2160M",
             "2166K",
             "2166M",
+            "2320К",
+            "2330K",
             "2235K",
             "2335K",
             "2338K",
@@ -101,9 +108,10 @@ public class SensorModels
             "2360M"
         };
 
-        Models_EnI12 = new List<string>
+        Models_EnI12    = new List<string>
         {
             "2036",
+            "2038",
             "2041",
             "2051",
             "2056",
@@ -111,15 +119,19 @@ public class SensorModels
             "2121",
             "2131",
             "2136",
+            "2138",
             "2141",
+            "2150",
             "2151",
             "2156",
             "2161",
             "2166",
             "2171",
+            "2231",
             "2236",
             "2331",
             "2336",
+            "2338",
             "2341",
             "2351",
             "2356",
@@ -130,6 +142,7 @@ public class SensorModels
             "2440",
             "2445",
             "2450",
+            "2500",
             "2530",
             "2540",
             "2140M",
@@ -143,9 +156,37 @@ public class SensorModels
             "2360M"
         };
 
+        Models_EnI12_M  = new List<string> 
+        {
+            "100",
+            "400",
+            "600",
+            "1600",
+            "2500",
+            "10000",
+            "16000",
+            "25000",
+            "60000"
+        };
+
         Models_NoneSelected = new List<string>()
         {
             "Не указано"
         };
+    }
+
+    public List<string> EnI100_Models()
+    {
+        return Models_EnI100;
+    }
+
+    public List<string> EnI12_Models()
+    {
+        return Models_EnI12;
+    }
+
+    public List<string> EnI12M_Models()
+    {
+        return Models_EnI12_M;
     }
 }

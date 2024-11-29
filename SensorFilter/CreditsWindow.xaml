@@ -10,7 +10,7 @@
     <Grid>
         <Image Source="/eni-bbmv_logo_cleanbig.png" VerticalAlignment="Top" Margin="10,10,10,0"/>
         <TextBlock  TextWrapping="Wrap" FontSize="16" VerticalAlignment="Bottom" Margin="10,0,10,10">
-            Программа для просмотра базы данных характеризации датчиков ЭнИ<LineBreak/>
+            Программа для просмотра базы данных характеризации датчиков ЭНИ<LineBreak/>
             Версия: 1.0.0<LineBreak/>
             © ООО "ИТеК ББМВ", 2024
         </TextBlock>

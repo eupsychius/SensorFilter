@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using MessageBox = System.Windows.MessageBox;
-using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using MessageBox        = System.Windows.MessageBox;
+using OpenFileDialog    = Microsoft.Win32.OpenFileDialog;
 
 namespace SensorFilter
 {
@@ -836,8 +836,12 @@ namespace SensorFilter
 
         public static string GetFileWord(int count)
         {
-            if (count % 10 == 1 && count % 100 != 11) return "файл";
-            if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return "файла";
+            if (count % 10  ==  1   && 
+                count % 100 !=  11  )   return "файл";   // 1;   21;     31
+            if (count % 10  >=  2   && 
+                count % 10  <=  4   && (
+                count % 100 <   10  || 
+                count % 100 >=  20  ))  return "файла"; // 2-4; 22-24;  32-34
             return "файлов";
         }
     }

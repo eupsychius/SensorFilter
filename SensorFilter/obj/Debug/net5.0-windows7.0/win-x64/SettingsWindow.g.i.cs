@@ -182,7 +182,7 @@ namespace SensorFilter {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/SensorFilter;component/settingswindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/SensorFilter;V1.0.0.0;component/settingswindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\SettingsWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
