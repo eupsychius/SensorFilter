@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SensorFilter</id>
+    <version>1.0.0</version>
+    <authors>SensorFilter</authors>
+    <description>Package Description</description>
+    <repository type="git" commit="fa30b2a49acd8f8cdc8720fb81ade9c31fc3446a" />
+    <dependencies>
+      <group targetFramework="net5.0-windows7.0">
+        <dependency id="Dapper" version="2.1.35" exclude="Build,Analyzers" />
+        <dependency id="FilterDataGrid" version="1.2.8" exclude="Build,Analyzers" />
+        <dependency id="System.Data.SQLite" version="1.0.119" exclude="Build,Analyzers" />
+        <dependency id="System.Data.SqlClient" version="4.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Drawing.Common" version="9.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net5.0-windows7.0">
+        <frameworkReference name="Microsoft.WindowsDesktop.App" />
+      </group>
+    </frameworkReferences>
+    <contentFiles>
+      <files include="any/net5.0-windows7.0/icon.ico" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\SensorFilter.runtimeconfig.json" target="lib\net5.0-windows7.0\SensorFilter.runtimeconfig.json" />
+    <file src="C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\SensorFilter.dll" target="lib\net5.0-windows7.0\SensorFilter.dll" />
+    <file src="C:\Users\User\source\repos\SensorFilter\SensorFilter\icon.ico" target="content\icon.ico" />
+    <file src="C:\Users\User\source\repos\SensorFilter\SensorFilter\icon.ico" target="contentFiles\any\net5.0-windows7.0\icon.ico" />
+  </files>
+</package>

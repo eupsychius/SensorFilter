@@ -1,0 +1,14 @@
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\SensorFilter.pdb
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\icon.ico
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\SensorFilter.dll.config
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\clrcompression.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\clrjit.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\coreclr.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\mscordaccore.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\D3DCompiler_47_cor3.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\PenImc_cor3.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\PresentationNative_cor3.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\vcruntime140_cor3.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\wpfgfx_cor3.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\SQLite.Interop.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\win-x86\SensorFilter.exe

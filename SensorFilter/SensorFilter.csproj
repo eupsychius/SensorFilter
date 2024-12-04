@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <TargetRuntime>win-x64</TargetRuntime>
@@ -21,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="FilterDataGrid" Version="1.2.8" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
@@ -34,7 +31,9 @@
 
   <ItemGroup>
     <Resource Include="eni-bbmv_logo_cleanbig.png" />
-    <Resource Include="icon.ico" />
+    <Resource Include="icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

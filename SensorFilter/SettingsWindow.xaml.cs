@@ -34,8 +34,8 @@ namespace SensorFilter
         {
             InitializeComponent();
 
-            this.Loaded     += SettingsWindow_Loaded;
-            this.Closing    += SettingsWindow_Closing;
+            Loaded  += SettingsWindow_Loaded;
+            Closing += SettingsWindow_Closing;
 
             // Если есть права админа
             if (adminRights)
@@ -132,22 +132,22 @@ namespace SensorFilter
         // Доп. свойства закрытия окна программы
         private async void SettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Есть несохраненные изменения
-            //if (unsavedChanges)
-            //{
-            //    // Показать сообщение пользователю с выбором
-            //    MessageBoxResult result = MessageBox.Show(
-            //        "У вас есть несохраненные изменения. Вы уверены, что хотите выйти без сохранения?",
-            //        "Внимание",
-            //        MessageBoxButton.YesNoCancel,
-            //        MessageBoxImage.Warning);
+            /* Есть несохраненные изменения
+            if (unsavedChanges)
+            {
+                // Показать сообщение пользователю с выбором
+                MessageBoxResult result = MessageBox.Show(
+                    "У вас есть несохраненные изменения. Вы уверены, что хотите выйти без сохранения?",
+                    "Внимание",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Warning);
 
-            //    // Обработка выбора пользователя
-            //    if      (result == MessageBoxResult.No)
-            //        e.Cancel = true;
-            //    else if (result == MessageBoxResult.Cancel)
-            //        e.Cancel = true;
-            //}
+                // Обработка выбора пользователя
+                if      (result == MessageBoxResult.No)
+                    e.Cancel = true;
+                else if (result == MessageBoxResult.Cancel)
+                    e.Cancel = true;
+            }*/
 
             // Если зафризили окно
             if (taskInProgress)
@@ -317,7 +317,7 @@ namespace SensorFilter
                     string selectedPath = folderBrowserDialog.SelectedPath;
 
                     // Задаём путь для новой базы данных и файла db_info.txt
-                    string crDbPath = Path.Combine(selectedPath, "sensor_data.db");
+                    string crDbPath     = Path.Combine(selectedPath, "sensor_data.db");
                     string crDbInfoPath = Path.Combine(selectedPath, "db_info.txt");
                     DbPathText.Text = crDbPath;
 
@@ -403,8 +403,8 @@ namespace SensorFilter
                         "Информация", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Information);
-                    this.IsEnabled = true;
-                    taskInProgress = false;
+                    IsEnabled       = true;
+                    taskInProgress  = false;
                     ToggleElements(true);
                     return;
                 }
@@ -474,7 +474,7 @@ namespace SensorFilter
                     ScanDirectoryButton.Visibility  = Visibility.Visible;
                     StopScanButton.Visibility       = Visibility.Hidden;
                     AddFilesButton.IsEnabled        = true;
-                    taskInProgress = false;
+                    taskInProgress                  = false;
                     ToggleElements(true);
                 });
             }
@@ -517,7 +517,7 @@ namespace SensorFilter
                                 "Информация",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);
-                            this.IsEnabled = true;
+                            IsEnabled = true;
                         });
                         fullSync = false;
                         break;
@@ -537,7 +537,7 @@ namespace SensorFilter
                         Dispatcher.Invoke(() =>
                         {
                             SyncProgressBar.Value = (double)filesWritten / filesTotal * 100;
-                            ProgressText.Text = $"{filesWritten}/{filesTotal}";
+                            ProgressText.   Text = $"{filesWritten}/{filesTotal}";
                         });
                     }
                     // Ловим исключение-отмену
@@ -589,8 +589,8 @@ namespace SensorFilter
             UpdateTooltips();
 
             // Возвращаем кнопки
-            SyncProgress.Visibility = Visibility.Hidden;
-            ScanSyncStackPanel.Visibility = Visibility.Visible;
+            SyncProgress.       Visibility = Visibility.Hidden;
+            ScanSyncStackPanel. Visibility = Visibility.Visible;
             ToggleElements(true);
         }
 
@@ -600,7 +600,7 @@ namespace SensorFilter
             try
             {
                 // Открываем проводник, указываем на файл
-                OpenFileDialog openFileDialog   = new OpenFileDialog();
+                OpenFileDialog openFileDialog   = new();
                 openFileDialog.InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pending Data");
                 openFileDialog.Filter           = "Text files (*.txt)|*.txt";
 
@@ -702,21 +702,12 @@ namespace SensorFilter
 
                             // Читаем первую строку и отсеиваем невалидные тхт
                             var fileName = fileInfo.Name;
-                            if(
-                            fileName.StartsWith("CH_FN_") ||
-                            fileName.StartsWith("VR_FN_"))
-                            {
+                            if( fileName.StartsWith("CH_FN_") ||
+                                fileName.StartsWith("VR_FN_"))
                                 validFiles.Add(fileInfo);
-                            }
                         }
-                        catch (UnauthorizedAccessException ex)
-                        {
-                            Console.WriteLine($"Ошибка/Доступ: {ex.Message}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Ошибка: {ex.Message}");
-                        }
+                        catch (UnauthorizedAccessException ex)  { Console.WriteLine($"Ошибка/Доступ: {ex.Message}"); }
+                        catch (Exception ex)                    { Console.WriteLine($"Ошибка: {ex.Message}");        }
                     }
                 }
                 catch (Exception ex)
@@ -804,6 +795,7 @@ namespace SensorFilter
             }
         }
 
+        // Переключатель для элементов на время скана / синхронизации
         private void ToggleElements(bool enable)
         {
             SelectDbButton.      IsEnabled  = enable;
@@ -812,15 +804,13 @@ namespace SensorFilter
             SaveButton.          IsEnabled  = enable;
         }
 
-        // Последние 2 метода в теории можно объединить в 1
-
         // Кнопка остановки синхронизации
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
             {
                 _cancellationTokenSource.Cancel();
-                this.IsEnabled = false;
+                IsEnabled = false;
             }
         }
 
@@ -830,14 +820,15 @@ namespace SensorFilter
             if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
             {
                 _cancellationTokenSource.Cancel();
-                this.IsEnabled = false;
+                IsEnabled = false;
             }
         }
 
+        // Определяем склонение слова в зависимости от значения числа
         public static string GetFileWord(int count)
         {
             if (count % 10  ==  1   && 
-                count % 100 !=  11  )   return "файл";   // 1;   21;     31
+                count % 100 !=  11  )   return "файл";  // 1;   21;     31
             if (count % 10  >=  2   && 
                 count % 10  <=  4   && (
                 count % 100 <   10  || 

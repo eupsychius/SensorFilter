@@ -10,13 +10,13 @@ namespace SensorFilter
     {
         private static ErrorLogWindow _logWindow;
         private static ObservableCollection<ErrorLogEntry> _logEntries = new();
+
         public  static ObservableCollection<ErrorLogEntry> LogEntries => _logEntries;
 
-        public static void Clear()
-        {
-            _logEntries.Clear();
-        }
+        // Очистка лога
+        public static void Clear() => _logEntries.Clear();
 
+        // Логирование ошибки
         public static void LogError(string fileName, string criticality, string errorMessage)
         {
             var newEntry = new ErrorLogEntry
@@ -29,6 +29,7 @@ namespace SensorFilter
 
             Application.Current.Dispatcher.Invoke(() => _logEntries.Add(newEntry));
 
+            // Открываем окно лога если было закрыто
             if (_logWindow == null)
             {
                 _logWindow = new ErrorLogWindow(_logEntries);
@@ -37,13 +38,11 @@ namespace SensorFilter
 
                 // Инициализируем позицию сразу после открытия
                 var settingsWindow = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
-                if (settingsWindow != null)
-                {
-                    settingsWindow.InitializeErrorLogWindowPosition();
-                }
+                if (settingsWindow != null) settingsWindow.InitializeErrorLogWindowPosition();
             }
         }
 
+        // Логирование в асинхроне
         public static async Task LogErrorAsync(string fileName, string criticality, string errorMessage)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>
@@ -68,20 +67,13 @@ namespace SensorFilter
 
                     // Инициализируем позицию сразу после открытия
                     var settingsWindow = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
-                    if (settingsWindow != null)
-                    {
-                        settingsWindow.InitializeErrorLogWindowPosition();
-                    }
+                    if (settingsWindow != null) settingsWindow.InitializeErrorLogWindowPosition();
                 }
             });
         }
 
         // Возвращает текущее окно ошибок
-        public static ErrorLogWindow GetLogWindow()
-        {
-            return _logWindow;
-        }
-
+        public static ErrorLogWindow GetLogWindow() => _logWindow;
     }
 
     // Log Entry Model
@@ -92,5 +84,4 @@ namespace SensorFilter
         public string Criticality   { get; set; }
         public string ErrorMessage  { get; set; }
     }
-
 }

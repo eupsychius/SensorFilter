@@ -37,7 +37,7 @@
                                 <Button Margin="5" Height="24" Content="Сканировать"    Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"                       />
                                 <Button Margin="5" Height="24" Content="Прервать"       Name="StopScanButton"       Click="StopScanButton_Click"        Visibility="Hidden" />
                             </Grid>
-                            
+
                             <Button Grid.Column="1" Margin="5" Height="24" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" />
                             
                         </Grid>
@@ -53,7 +53,7 @@
                         </Grid>
                         
                     </Grid>
-                    
+
                     <TextBlock Text="Путь до архива записей" FontSize="16" />
                     
                     <Grid>

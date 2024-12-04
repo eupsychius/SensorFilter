@@ -27,15 +27,15 @@ namespace SensorFilter
         {
             InitializeComponent();
 
-            this.Loaded     += MainWindow_Loaded;
-            this.Closing    += MainWindow_Closing;
+            Loaded     += MainWindow_Loaded;
+            Closing    += MainWindow_Closing;
         }
 
         // Доп. действия при закрытии окна
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Завершаем приложение полностью
-            System.Windows.Application.Current.Shutdown();
+            Application.Current.Shutdown();
         }
 
         // Действия при окончательной загрузке окна программы
@@ -63,7 +63,7 @@ namespace SensorFilter
             else
             {
                 MessageBox.Show(
-                    "База данных по указанному в настройках пути не существует или недоступна",
+                    "База данных не указана. Перейдите в настройки и укажите путь вручную",
                     "Ошибка",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -108,18 +108,12 @@ namespace SensorFilter
                         AdmRights.IsChecked = false;
                     }
                 }
-                else
-                {
-                    passwordWindow.Focus();
-                }
+                else passwordWindow.Focus();
             }
         }
 
-        // [Меню док] Закрытие программы
-        private void CloseApp(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        // Меню док - закрытие программы
+        private void CloseApp(object sender, RoutedEventArgs e) => Close();
 
         // Выбираем из списка серийников нужный номер
         private void SortedByDateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -196,10 +190,7 @@ namespace SensorFilter
             string path = Properties.DataBase.Default.DataBasePath;
 
             // Убедиться, что dbPath не пуст
-            if (string.IsNullOrEmpty(path))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(path)) return null;
             return path;
         }
 
@@ -239,13 +230,7 @@ namespace SensorFilter
         }
 
         // Запуск поиска по ентеру
-        private void SortBySerialIdTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                TrySerialNumber();
-            }
-        }
+        private void SortBySerialIdTextBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) TrySerialNumber(); }
 
         // Пробуем прописанный серийник на совпадение в ДБ
         private void TrySerialNumber()
@@ -254,62 +239,60 @@ namespace SensorFilter
 
             if (GetDbPath().Contains(".db") && File.Exists(GetDbPath()))
             {
-                if (int.TryParse(serialNumberText, out int serialNumber))
+                if (!(serialNumberText.Contains('(') || serialNumberText.Contains(')')))
                 {
-                    // Получаем данные и количество уникальных моделей
-                    var (sensor, uniqueTypes, uniqueModels) = databaseHelper.GetSensorBySerialNumber(serialNumberText);
-
-                    if (sensor != null && sensor.Count > 0)
+                    if (int.TryParse(serialNumberText, out int serialNumber))
                     {
-                        // Если уникальная модель одна, вызываем CreateTable напрямую
-                        if (uniqueModels.Count == 1)
+                        if (serialNumber > 16777215)
                         {
-                            CreateTable(serialNumberText, uniqueModels[0]); // Передаем единственную модель
+                            serialNumberText    = serialNumberText.Remove(0, 1);
+                            serialNumber        = Convert.ToInt32(serialNumberText);
                         }
-                        else if (uniqueModels.Count > 1)
-                        {
-                            // Открываем диалоговое окно для выбора модели
-                            SelectModelWindow selectModelWindow = new SelectModelWindow(uniqueTypes, uniqueModels);
-                            if (selectModelWindow.ShowDialog() == true)
-                            {
-                                // Получаем выбранную модель из окна
-                                string selectedModel = selectModelWindow.SelectedModel;
 
-                                try
+                        // Получаем данные и количество уникальных моделей
+                        var (sensor, uniqueTypes, uniqueModels) = databaseHelper.GetSensorBySerialNumber(serialNumberText);
+
+                        if (sensor != null && sensor.Count > 0)
+                        {
+                            // Если уникальная модель одна, вызываем CreateTable напрямую
+                            if (uniqueModels.Count == 1) CreateTable(serialNumberText, uniqueModels[0]); // Передаем единственную модель
+                            else if (uniqueModels.Count > 1)
+                            {
+                                // Открываем диалоговое окно для выбора модели
+                                SelectModelWindow selectModelWindow = new SelectModelWindow(uniqueTypes, uniqueModels);
+                                if (selectModelWindow.ShowDialog() == true)
                                 {
-                                    CreateTable(serialNumberText, selectedModel); // Передаем выбранную модель
-                                }
-                                catch
-                                {
-                                    MessageBox.Show(
-                                        "Возникла ошибка при связи с базой данных",
-                                        "Ошибка",
-                                        MessageBoxButton.OK,
-                                        MessageBoxImage.Error);
+                                    // Получаем выбранную модель из окна
+                                    string selectedModel = selectModelWindow.SelectedModel;
+
+                                    try { CreateTable(serialNumberText, selectedModel); /* Передаем выбранную модель */ }
+                                    catch { MessageBox.Show(
+                                            "Возникла ошибка при связи с базой данных",
+                                            "Ошибка",
+                                            MessageBoxButton.OK,
+                                            MessageBoxImage.Error); }
                                 }
                             }
                         }
+                        else    MessageBox.Show(
+                                "Нет данных для данного серийного номера",
+                                "Внимание",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
                     }
-                    else
-                    {
-                        MessageBox.Show(
-                            "Нет данных для данного серийного номера.",
+                    else    MessageBox.Show(
+                            "Введите корректный серийный номер",
                             "Внимание",
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
-                    }
                 }
-                else
-                {
-                    MessageBox.Show(
-                        "Введите корректный серийный номер.",
+                else    MessageBox.Show(
+                        "Введите серийный номер без числа в скобках",
                         "Внимание",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
-                }
             }
-            else
-                MessageBox.Show(
+            else    MessageBox.Show(
                     "Невозможно выполнить поиск по указанному пути\n" +
                     "Проверьте указанный путь в настройках",
                     "Внимание",
@@ -327,11 +310,8 @@ namespace SensorFilter
             if (MonthPickerCalendar.DisplayMode == CalendarMode.Month)
             {
                 selectedMonth = MonthPickerCalendar.DisplayDate;
-
                 Mouse.Capture(null);
-
                 MonthPickerCalendar.DisplayMode = CalendarMode.Year;
-
                 ShowSerialsIfPossible();
             }
         }

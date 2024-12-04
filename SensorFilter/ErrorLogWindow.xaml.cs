@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace SensorFilter
 {
@@ -21,10 +20,8 @@ namespace SensorFilter
         public ErrorLogWindow(ObservableCollection<ErrorLogEntry> logEntries)
         {
             InitializeComponent();
-
             DataContext = logEntries;
-
-            this.Closing += ErrorLogWindow_Closing;
+            Closing += ErrorLogWindow_Closing;
         }
 
         private void ErrorLogWindow_Closing(object sender, CancelEventArgs e)

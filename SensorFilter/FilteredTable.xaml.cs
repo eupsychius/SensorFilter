@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,7 +18,6 @@ namespace SensorFilter
     {
         // Инстансы классов
         private DatabaseHelper databaseHelper = new DatabaseHelper();
-        private string DatabasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sensor_data.db");
 
         bool adminRights;
 
@@ -44,9 +42,9 @@ namespace SensorFilter
                 var allCoefficientsData = databaseHelper.GetCoefficientsDataBySerialNumber      (serialNumber, model);
 
                 // Пишем в таблицу
-                FilteredDataGrid.ItemsSource            = allSensorData;
-                VerifiedDataGrid.ItemsSource            = allVerificationData;
-                SensorCoefficientsDataGrid.ItemsSource  = allCoefficientsData;
+                FilteredDataGrid.           ItemsSource = allSensorData;
+                VerifiedDataGrid.           ItemsSource = allVerificationData;
+                SensorCoefficientsDataGrid. ItemsSource = allCoefficientsData;
 
                 // Заполняем лейблы над таблицей
                 var sensor = databaseHelper.GetSensorTypeBySerialNumber(serialNumber, model);
@@ -68,10 +66,6 @@ namespace SensorFilter
                     MessageBoxImage.Error);
             }
         }
-
-        List<int> selectedCharasteristics   = new List<int>();
-        List<int> selectedVerifications     = new List<int>();
-        List<int> selectedCoefficients      = new List<int>();
 
         // Экспорт коэффициентов в тхт файл
         private async void ExportCoefficientsButton_Click(object sender, RoutedEventArgs e)
@@ -117,20 +111,17 @@ namespace SensorFilter
         private string GetSaveFilePath()
         {
             // Создаём SaveFileDialog
-            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            SaveFileDialog saveFileDialog = new();
 
             // Настраиваем диалоговое окно
-            saveFileDialog.Filter = "Text file (*.txt)|*.txt";    // Фильтр файлов
-            saveFileDialog.FileName = $"SN{SensorID.Text}_C";       // Начальное имя файла
-            saveFileDialog.DefaultExt = ".txt";                       // Расширение по умолчанию
-            saveFileDialog.Title = "Экспорт файла";              // Заголовок окна
+            saveFileDialog.Filter       = "Text file (*.txt)|*.txt";    // Фильтр файлов
+            saveFileDialog.FileName     = $"SN{SensorID.Text}_C";       // Начальное имя файла
+            saveFileDialog.DefaultExt   = ".txt";                       // Расширение по умолчанию
+            saveFileDialog.Title        = "Экспорт файла";              // Заголовок окна
 
             // Показываем диалоговое окно пользователю
             bool? result = saveFileDialog.ShowDialog();
-            if (result == true)
-            {
-                return saveFileDialog.FileName;
-            }
+            if (result == true) return saveFileDialog.FileName;
 
             return null;
         }
@@ -140,10 +131,8 @@ namespace SensorFilter
         {
             // Создаём окно выбора даты
             var dateSelectionWindow = new DateSelectionWindow(availableDates);
-            if (dateSelectionWindow.ShowDialog() == true)
-            {
-                return dateSelectionWindow.SelectedDate;
-            }
+            if (dateSelectionWindow.ShowDialog() == true) return dateSelectionWindow.SelectedDate;
+
             return null;
         }
 
@@ -206,12 +195,9 @@ namespace SensorFilter
             var verificationDataIds = VerifiedDataGrid.SelectedItems.           Cast<SensorVerification>(). Select(v => v.Id).      ToList();
             var coefficientDataIds  = SensorCoefficientsDataGrid.SelectedItems. Cast<SensorCoefficients>(). Select(c => c.Id).      ToList();
 
-            if (sensorDataIds.      Any())
-                databaseHelper.DeleteSensorData         (sensorDataIds);
-            if (verificationDataIds.Any())
-                databaseHelper.DeleteVerificationData   (verificationDataIds);
-            if (coefficientDataIds. Any())
-                databaseHelper.DeleteCoefficientData    (coefficientDataIds);
+            if (sensorDataIds.      Any()) databaseHelper.DeleteSensorData      (sensorDataIds);
+            if (verificationDataIds.Any()) databaseHelper.DeleteVerificationData(verificationDataIds);
+            if (coefficientDataIds. Any()) databaseHelper.DeleteCoefficientData (coefficientDataIds);
 
             // Проверка наличия данных по серийному номеру и модели
             bool hasData = databaseHelper.HasSensorRelatedData(SensorID.Text, SensorModel.Text);
@@ -226,7 +212,7 @@ namespace SensorFilter
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                this.Close();
+                Close();
             }
             else
                 CheckCoefficientsGridLength();
@@ -235,25 +221,16 @@ namespace SensorFilter
             FilterBySerialNumber(SensorID.Text, SensorModel.Text);
         }
 
-        // Отмена выделения строк в датагриде
-        //private void DeselectButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    FilteredDataGrid.           UnselectAll();
-        //    VerifiedDataGrid.           UnselectAll();
-        //    SensorCoefficientsDataGrid. UnselectAll();
-        //}
-
         // Аккуратное удаление строк при переключении вкладки
         private void TablesTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TablesTabControl.SelectedIndex != 0)
+            if (TablesTabControl.SelectedIndex != 0) 
                 FilteredDataGrid.           UnselectAll();
-            if (TablesTabControl.SelectedIndex != 1)
+            if (TablesTabControl.SelectedIndex != 1) 
                 VerifiedDataGrid.           UnselectAll();
             if (TablesTabControl.SelectedIndex != 2)
             {
-                SensorCoefficientsDataGrid.UnselectAll();
-
+                SensorCoefficientsDataGrid. UnselectAll();
                 CheckCoefficientsGridLength();
             }
                 
@@ -264,7 +241,6 @@ namespace SensorFilter
         {
             if (SensorCoefficientsDataGrid.Items.Count == 0)
                 ExportCoefficientsButton.Visibility = Visibility.Hidden;
-
             else
                 ExportCoefficientsButton.Visibility = Visibility.Visible;
         }
@@ -301,12 +277,10 @@ namespace SensorFilter
                 databaseHelper.DeleteSensorDataBySerialNumber       (serialNumber, model);
                 databaseHelper.DeleteVerificationDataBySerialNumber (serialNumber, model);
                 databaseHelper.DeleteCoefficientDataBySerialNumber  (serialNumber, model);
-
                 // Удаление самого датчика
-                databaseHelper.DeleteSensor(serialNumber, model);
-
+                databaseHelper.DeleteSensor                         (serialNumber, model);
                 // Обновление таблиц после удаления
-                FilterBySerialNumber(serialNumber, model);
+                FilterBySerialNumber                                (serialNumber, model);
 
                 return true;
             }

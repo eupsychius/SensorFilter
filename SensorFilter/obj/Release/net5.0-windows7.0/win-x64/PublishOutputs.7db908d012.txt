@@ -1,0 +1,14 @@
+C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.pdb
+C:\Users\User\Documents\SensorFilter\Releases\icon.ico
+C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.dll.config
+C:\Users\User\Documents\SensorFilter\Releases\clrcompression.dll
+C:\Users\User\Documents\SensorFilter\Releases\clrjit.dll
+C:\Users\User\Documents\SensorFilter\Releases\coreclr.dll
+C:\Users\User\Documents\SensorFilter\Releases\mscordaccore.dll
+C:\Users\User\Documents\SensorFilter\Releases\D3DCompiler_47_cor3.dll
+C:\Users\User\Documents\SensorFilter\Releases\PenImc_cor3.dll
+C:\Users\User\Documents\SensorFilter\Releases\PresentationNative_cor3.dll
+C:\Users\User\Documents\SensorFilter\Releases\vcruntime140_cor3.dll
+C:\Users\User\Documents\SensorFilter\Releases\wpfgfx_cor3.dll
+C:\Users\User\Documents\SensorFilter\Releases\SQLite.Interop.dll
+C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.exe

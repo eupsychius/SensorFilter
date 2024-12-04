@@ -1,5 +1,5 @@
 ﻿SensorFilter
-
+1.0.0.0
 
 winexe
 C#
@@ -10,11 +10,11 @@ none
 false
 TRACE;RELEASE;NET;NET5_0;NETCOREAPP
 C:\Users\User\source\repos\SensorFilter\SensorFilter\App.xaml
-6-1088611574
-1-1900438536
-161322962891
-209662222807
-DateSelectionWindow.xaml;FilteredTable.xaml;MainWindow.xaml;PasswordWindow.xaml;SelectModelWindow.xaml;SettingsWindow.xaml;
+8-1150689653
+
+19-1359745318
+209-559431986
+CreditsWindow.xaml;DateSelectionWindow.xaml;ErrorLogWindow.xaml;FilteredTable.xaml;MainWindow.xaml;PasswordWindow.xaml;SelectModelWindow.xaml;SettingsWindow.xaml;
 
 False
 
