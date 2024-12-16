@@ -7,12 +7,24 @@
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\fileprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\selectmodelwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\selectmodelwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\errorlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\errorlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\sensormodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -23,28 +35,27 @@
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\settingswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\filteredtable.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\filteredtable.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\filteredtable.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\filteredtable.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\errorlogwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\errorlogwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\errorlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\errorlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\dotnet\\sdk\\9.0.100\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.NET.EolTargetFrameworks.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\errorlogwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\errorlogwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\filteredtable.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\filteredtable.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\creditswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -59,16 +70,8 @@
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\sensors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\sensorfilter.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\sensorfilter.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\selectmodelwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|solutionrelative:sensorfilter\\selectmodelwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A8A37A19-E710-443B-AA4B-1D5E1826E80B}|SensorFilter\\SensorFilter.csproj|c:\\users\\user\\source\\repos\\sensorfilter\\sensorfilter\\selectmodelwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -102,11 +105,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 223,
-          "SelectedChildIndex": 14,
+          "SelectedChildIndex": 15,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "ErrorLogWindow.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\ErrorLogWindow.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\ErrorLogWindow.xaml",
@@ -118,20 +121,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "ErrorLogWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\ErrorLogWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\ErrorLogWindow.xaml.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\ErrorLogWindow.xaml.cs",
               "RelativeToolTip": "SensorFilter\\ErrorLogWindow.xaml.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAmwBoAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIAAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-31T10:40:52.268Z",
               "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 13,
               "Title": "FilteredTable.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\FilteredTable.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\FilteredTable.xaml",
@@ -143,20 +146,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "FilteredTable.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\FilteredTable.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\FilteredTable.xaml.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\FilteredTable.xaml.cs",
               "RelativeToolTip": "SensorFilter\\FilteredTable.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAA0BAAAAAAAAAAAAwOsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T04:24:45.111Z",
               "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 12,
               "Title": "SettingsWindow.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SettingsWindow.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\SettingsWindow.xaml",
@@ -168,20 +171,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "SettingsWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SettingsWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SettingsWindow.xaml.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SettingsWindow.xaml.cs",
               "RelativeToolTip": "SensorFilter\\SettingsWindow.xaml.cs",
-              "ViewState": "AgIAAMECAAAAAAAAAAAwwOkCAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAOUCAAAAAAAAAAAUwCYDAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T04:25:12.952Z",
               "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\MainWindow.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\MainWindow.xaml",
@@ -189,26 +192,24 @@
               "RelativeToolTip": "SensorFilter\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2024-11-01T03:45:01.399Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\MainWindow.xaml.cs",
               "RelativeToolTip": "SensorFilter\\MainWindow.xaml.cs",
-              "ViewState": "AgIAABYBAAAAAAAAAAAAABwBAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAO8AAAAAAAAAAAAuwAUBAABbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T04:24:49.878Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "SelectModelWindow.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SelectModelWindow.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\SelectModelWindow.xaml",
@@ -220,20 +221,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 1,
               "Title": "SelectModelWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SelectModelWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SelectModelWindow.xaml.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SelectModelWindow.xaml.cs",
               "RelativeToolTip": "SensorFilter\\SelectModelWindow.xaml.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAcwEYAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T04:24:55.204Z",
               "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "CreditsWindow.xaml",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\CreditsWindow.xaml",
               "RelativeDocumentMoniker": "SensorFilter\\CreditsWindow.xaml",
@@ -245,7 +246,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "CreditsWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\CreditsWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\CreditsWindow.xaml.cs",
@@ -262,13 +263,25 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
+              "Title": "Microsoft.NET.EolTargetFrameworks.targets",
+              "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.NET.EolTargetFrameworks.targets",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.100\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.NET.EolTargetFrameworks.targets",
+              "ToolTip": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.NET.EolTargetFrameworks.targets",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.100\\Sdks\\Microsoft.NET.Sdk\\targets\\Microsoft.NET.EolTargetFrameworks.targets",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2024-12-10T05:13:16.576Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "ErrorLogger.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\ErrorLogger.cs",
               "RelativeDocumentMoniker": "SensorFilter\\ErrorLogger.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\ErrorLogger.cs",
               "RelativeToolTip": "SensorFilter\\ErrorLogger.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAmwEYAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAACIAAAAAAAAAAAAgwC4AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-31T10:00:19.175Z"
             },
@@ -280,39 +293,38 @@
               "RelativeDocumentMoniker": "SensorFilter\\FileProcessor.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\FileProcessor.cs",
               "RelativeToolTip": "SensorFilter\\FileProcessor.cs",
-              "ViewState": "AgIAAL4AAAAAAAAAAIAxwMoAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T04:24:30.113Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "SensorModels.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorModels.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SensorModels.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorModels.cs",
               "RelativeToolTip": "SensorFilter\\SensorModels.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJEAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAAJgAAAAAAAAAAAAgwLQAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-30T04:25:06.127Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T04:25:06.127Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 3,
               "Title": "DatabaseHelper.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\DatabaseHelper.cs",
               "RelativeDocumentMoniker": "SensorFilter\\DatabaseHelper.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\DatabaseHelper.cs",
               "RelativeToolTip": "SensorFilter\\DatabaseHelper.cs",
-              "ViewState": "AgIAAFoBAAAAAAAAAAAawHYBAAAlAAAAAAAAAA==",
+              "ViewState": "AgIAAIsAAAAAAAAAAAAgwJcAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-29T08:06:34.049Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "SensorCoefficients.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorCoefficients.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SensorCoefficients.cs",
@@ -324,7 +336,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "SensorData.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorData.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SensorData.cs",
@@ -336,7 +348,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 16,
               "Title": "Sensors.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\Sensors.cs",
               "RelativeDocumentMoniker": "SensorFilter\\Sensors.cs",
@@ -348,7 +360,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "SensorFilter.csproj",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorFilter.csproj",
               "RelativeDocumentMoniker": "SensorFilter\\SensorFilter.csproj",
@@ -360,7 +372,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 15,
               "Title": "SensorFilter",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorFilter.csproj",
               "RelativeDocumentMoniker": "SensorFilter\\SensorFilter.csproj",
@@ -371,7 +383,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "SensorVerification.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\SensorVerification.cs",
               "RelativeDocumentMoniker": "SensorFilter\\SensorVerification.cs",
@@ -383,7 +395,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "DateSelectionWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\SensorFilter\\SensorFilter\\DateSelectionWindow.xaml.cs",
               "RelativeDocumentMoniker": "SensorFilter\\DateSelectionWindow.xaml.cs",

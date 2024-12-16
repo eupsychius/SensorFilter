@@ -6,8 +6,8 @@ namespace SensorFilter
 {
     public class FileProcessor
     {
-        private DatabaseHelper  databaseHelper  = new();
-        private SensorModels    sensorModels    = new();
+        private                 DatabaseHelper  databaseHelper  = new();
+        private static readonly SensorModels    sensorModels    = new();
 
         // Получаем строки файла на парсинг
         public (int, int) ParseCharacterisationData(string[] lines, string dbPath, string fileName)
@@ -22,24 +22,12 @@ namespace SensorFilter
             int     channel         = int.Parse(sensorDetails[0].   Split(':')[1].Trim());
             string  serialNumber    = sensorDetails[1].             Split(':')[1].Trim();
             // Некоторые серийники идут без типа и модели
-            string  type;
-            string  model;
-            try
-            {
-                type = sensorDetails[2].Split(':')[1].Trim();
-            }
-            catch
-            {
-                type = "-";
-            }
-            try
-            {
-                model = sensorDetails[3].Split(':')[1].Trim();
-            }
-            catch
-            {
-                model = "-";
-            }
+            string  type            = "-";
+            try {   type            = sensorDetails[2].             Split(':')[1].Trim(); }
+            catch { type            = "-"; }
+            string  model           = "-";
+            try {   model           = sensorDetails[3].             Split(':')[1].Trim(); }
+            catch { model           = "-"; }
 
             if (type == "-" || model == "-")
                 ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит неполные сведения о датчике");
@@ -48,8 +36,8 @@ namespace SensorFilter
             if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100")) type = "ЭНИ-100";
 
             // Ищем нестандартную модель
-            else if (
-                model       != "-" &&
+            if (
+                model != "-" &&
                 ((( type == "ЭНИ-100"   ) && !sensorModels.EnI100_Models(). Contains(model)) ||
                 ((  type == "ЭНИ-12"    ) && !sensorModels.EnI12_Models().  Contains(model)) ||
                 ((  type == "ЭНИ-12М"   ) && !sensorModels.EnI12M_Models(). Contains(model))))
@@ -71,9 +59,7 @@ namespace SensorFilter
 
                 // Проверяем наличие дубликатов по серийному номеру и дате
                 if (databaseHelper.CheckCharacterisationExists(serialNumber, type, model, connection))
-                {
                     ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о характеризации датчика уже есть в базе данных");
-                }
 
                 DateTime date = new();
 
@@ -85,7 +71,6 @@ namespace SensorFilter
                 // Парсим данные характеризации (начинаются с 5 строки)
                 for (int line = 4; line < lines.Length; line++)
                 {
-                    
                     if (lines[line].Contains("Коэффициенты датчика"))
                     {
                         coefficientsSection = true;
@@ -141,9 +126,7 @@ namespace SensorFilter
 
                         // Проверяем наличие дубликатов коэффициентов
                         if (databaseHelper.CheckCoefficientExists(serialNumber, type, model, connection))
-                        {
                             ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о коэффициентах датчика уже есть в базе данных");
-                        }
 
                         for (int i = 0; i < actualCoefficientCount; i++, line++)
                         {
@@ -152,15 +135,10 @@ namespace SensorFilter
                             // Если данных не хватает, пропускаем эту строку
                             if (coefficientData.Length < 2) continue;
 
-                            int     coefficientIndex;
-                            double  coefficientValue;
-
-                            if (!int.   TryParse(coefficientData[0].Trim(), out coefficientIndex) ||
-                                !double.TryParse(coefficientData[1].Trim(), out coefficientValue))
-                            {
+                            if (!int.   TryParse(coefficientData[0].Trim(), out int     coefficientIndex) ||
+                                !double.TryParse(coefficientData[1].Trim(), out double  coefficientValue))
                                 // Пропуск некорректных строк, чтобы избежать исключений
                                 continue;
-                            }
 
                             DateTime coefficientsDate = date;
 
@@ -181,10 +159,8 @@ namespace SensorFilter
                 try     { databaseHelper.InsertSensorDataBulk(sensorDataList, connection); }
                 catch   { ErrorLogger.LogError(fileName, "ОШИБКА", "Не удалось выгрузить данные характеризации в базу данных"); }
                 if (sensorCoefficientList.Count > 0)
-                {
                     try     { databaseHelper.InsertSensorCoefficientsBulk(sensorCoefficientList, connection); }
                     catch   { ErrorLogger.LogError(fileName, "ОШИБКА", "Не удалось выгрузить данные коэффициентов в базу данных"); }
-                }
             }
 
             return (skippedCharacterisation, skippedCoefficients);
@@ -200,12 +176,12 @@ namespace SensorFilter
             var     sensorDetails   = sensorInfo.                   Split(';');
             int     channel         = int.Parse(sensorDetails[0].   Split(':')[1].Trim());
             string  serialNumber    = sensorDetails[1].             Split(':')[1].Trim();
-            string  type;
-            try {   type            = sensorDetails[2].Split(':')[1].Trim(); }
+            string  type            = "-";
+            try {   type            = sensorDetails[2].             Split(':')[1].Trim(); }
             catch { type            = "-"; }
-            string  model;
-            try {   model           = sensorDetails[3].Split(':')[1].Trim();}
-            catch { model           = "-";                                  }
+            string  model           = "-";
+            try {   model           = sensorDetails[3].             Split(':')[1].Trim(); }
+            catch { model           = "-"; }
 
             if (type == "-" || model == "-")
                 ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит неполные сведения о датчике");
@@ -214,7 +190,7 @@ namespace SensorFilter
             if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100"))
                 type = "ЭНИ-100";
 
-            else if (
+            if (
                 model != "-" &&
                 ((( type == "ЭНИ-100"   ) && !sensorModels.EnI100_Models(). Contains(model)) ||
                 ((  type == "ЭНИ-12"    ) && !sensorModels.EnI12_Models().  Contains(model)) ||
@@ -228,28 +204,22 @@ namespace SensorFilter
                 /*Булы для одноразовой отправки предупреждений
                 bool verDupeWarned      = false;
                 bool verNoVoltWarned    = false;
-                bool verNoResiWarned    = false;*/
+                bool verNoResiWarned    = false;
                 bool defectPressureWarned   = false;
-                bool defectCurrentWarned    = false;
+                bool defectCurrentWarned    = false;*/
 
                 // Вставляем информацию о сенсоре
                 databaseHelper.InsertSensorData(channel, serialNumber, type, model, connection);
 
                 // Проверяем наличие дубликатов по серийному номеру и дате
                 if (databaseHelper.CheckVerificationExists(serialNumber, type, model, connection))
-                {
                     ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации датчика уже есть в базе данных");
-                }
 
                 // Парсим данные верификации, начиная с 5 строки
                 for (int line = 5; line < lines.Length; line++)
                 {
                     // Отлов пустых строк
-                    if (string.IsNullOrEmpty(lines[line]))
-                    {
-                    //    ErrorLogger.LogErrorAsync(fileName, "ОТЛАДКА", "Файл содержит пустую строку");
-                        continue;
-                    }
+                    if (string.IsNullOrEmpty(lines[line])) continue;
 
                     var data = lines[line].Split('|');
 
@@ -261,10 +231,10 @@ namespace SensorFilter
                     double      pressureReal    = double.   Parse(data[5].Trim());
                     double      currentGiven    = double.   Parse(data[6].Trim());
                     double      currentReal     = double.   Parse(data[7].Trim());
-                    double      voltage;
+                    double      voltage         = 0.0;
                     try {       voltage         = double.   Parse(data[8].Trim()); }
                     catch {     voltage         = 0.0; }
-                    double      resistance;
+                    double      resistance      = 0.0;
                     try {       resistance      = double.   Parse(data[9].Trim()); }
                     catch {     resistance      = 0.0;}
                     /* Проверяем отсутствие напряжения
@@ -312,14 +282,8 @@ namespace SensorFilter
                 }
 
                 // Вставляем все данные верификации пакетом
-                try
-                {
-                    databaseHelper.InsertVerificationDataBulk(verificationDataList, connection);
-                }
-                catch
-                {
-                    ErrorLogger.LogError(fileName, "ОШИБКА", "Не удалось выгрузить данные файла в базу данных");
-                }
+                try {   databaseHelper.InsertVerificationDataBulk(verificationDataList, connection); }
+                catch { ErrorLogger.LogError(fileName, "ОШИБКА", "Не удалось выгрузить данные файла в базу данных"); }
             }
 
             return skippedVerification;

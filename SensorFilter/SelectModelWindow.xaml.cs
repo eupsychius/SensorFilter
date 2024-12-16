@@ -7,29 +7,18 @@ namespace SensorFilter
     {
         public string SelectedModel { get; private set; }
 
-        public SelectModelWindow(List<string> types, List<string> models)
+        public SelectModelWindow(List<Sensor> sensors) //List<string> types, List<string> models, int sensorCount
         {
             InitializeComponent();
 
-            // Проверяем, что длина списков совпадает
-            if (types.Count != models.Count)
-            {
-                MessageBox.Show("Количество типов и моделей не совпадает.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             // Объединяем списки типов и моделей в формат "Type (Model)"
             var combinedItems = new List<string>();
-            for (int i = 0; i < types.Count; i++)
+            foreach (var sensor in sensors)
             {
-                if (types[i] == "-" && models[i] == "-")
-                {
+                if (sensor.Type == "-" && sensor.Model == "-")
                     combinedItems.Add("Не указано"); // Отображаем как "Не указано"
-                }
                 else
-                {
-                    combinedItems.Add($"{types[i]} ({models[i]})"); // Формат "Type (Model)"
-                }
+                    combinedItems.Add($"{sensor.Type} ({sensor.Model})"); // Формат "Type (Model)"
             }
 
             // Устанавливаем объединённый список как источник данных для ComboBox
@@ -45,9 +34,7 @@ namespace SensorFilter
                 var selectedItem = ModelComboBox.SelectedItem.ToString();
 
                 if (selectedItem == "Не указано")
-                {
                     SelectedModel = "-"; // Если выбран "Не указано", присваиваем "-"
-                }
                 else
                 {
                     // Разбиваем строку "Type (Model)" и извлекаем модель (после скобок)

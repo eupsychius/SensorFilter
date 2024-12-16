@@ -13,8 +13,6 @@ namespace SensorFilter
     /// </summary>
     public partial class ErrorLogWindow : Window
     {
-        DatabaseHelper databaseHelper;
-
         private void CloseLog(object sender, RoutedEventArgs e) => Close();
 
         public ErrorLogWindow(ObservableCollection<ErrorLogEntry> logEntries)
@@ -90,14 +88,18 @@ namespace SensorFilter
             e.Handled = true;
         }
 
-        private void OpenFileInExplorer(string approximatePath, string fileName)
+        private static void OpenFileInExplorer(string approximatePath, string fileName)
         {
             try
             {
                 // Проверяем, существует ли каталог
                 if (!Directory.Exists(approximatePath))
                 {
-                    MessageBox.Show($"Каталог \"{approximatePath}\" не существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(
+                        $"Каталог \"{approximatePath}\" не существует.", 
+                        "Ошибка", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -118,18 +120,22 @@ namespace SensorFilter
                     });
                 }
                 else
-                {
-                    MessageBox.Show($"Файл \"{fileName}\" не найден в каталоге \"{approximatePath}\" и его подкаталогах.", "Файл не найден", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                    MessageBox.Show(
+                        $"Файл \"{fileName}\" не найден в каталоге \"{approximatePath}\" и его подкаталогах.", 
+                        "Файл не найден", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Warning);
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                MessageBox.Show($"Нет доступа к одному из подкаталогов: {ex.Message}", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Произошла ошибка при поиске файла: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            catch (UnauthorizedAccessException ex) { MessageBox.Show(
+                $"Нет доступа к одному из подкаталогов: {ex.Message}", 
+                "Ошибка доступа", 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Error); }
+            catch (Exception ex) { MessageBox.Show(
+                $"Произошла ошибка при поиске файла: {ex.Message}", 
+                "Ошибка", 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Error); }
         }
     }
 }

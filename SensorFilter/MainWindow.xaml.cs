@@ -259,7 +259,7 @@ namespace SensorFilter
                             else if (uniqueModels.Count > 1)
                             {
                                 // Открываем диалоговое окно для выбора модели
-                                SelectModelWindow selectModelWindow = new SelectModelWindow(uniqueTypes, uniqueModels);
+                                SelectModelWindow selectModelWindow = new SelectModelWindow(sensor);
                                 if (selectModelWindow.ShowDialog() == true)
                                 {
                                     // Получаем выбранную модель из окна
@@ -403,8 +403,7 @@ namespace SensorFilter
 
         private void GoToCreditsWindow(object sender, RoutedEventArgs e)
         {
-            credits         = new CreditsWindow();
-            credits.Owner   = this;
+            credits = new CreditsWindow { Owner = this };
             credits.ShowDialog();
         }
 

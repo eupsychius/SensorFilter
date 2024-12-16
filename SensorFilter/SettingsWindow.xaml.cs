@@ -82,17 +82,11 @@ namespace SensorFilter
             string dbPath = GetDbPath();
 
             // Убедиться, что dbPath не равен нулю
-            if (string.IsNullOrEmpty(dbPath))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(dbPath)) return null;
 
             // Проверка на возможность получения каталога
             string directory = Path.GetDirectoryName(dbPath);
-            if (string.IsNullOrEmpty(directory))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(directory)) return null;
 
             // Возвращает полный путь до db_info.txt
             return Path.Combine(directory, "db_info.txt");
@@ -177,10 +171,7 @@ namespace SensorFilter
         }
 
         // Доп. действия происходящие после окончательной инициализации окна
-        private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            CheckDatabase();
-        }
+        private void SettingsWindow_Loaded(object sender, RoutedEventArgs e) => CheckDatabase();
 
         // Валидация пути до ДБ
         private void CheckDatabase()
@@ -248,8 +239,7 @@ namespace SensorFilter
         private void SelectDbButton_Click(object sender, RoutedEventArgs e)
         {
             // Открываем диалоговое окно выбора ДБ
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Database files (*.db)|*.db";
+            OpenFileDialog openFileDialog = new() { Filter = "Database files (*.db)|*.db" };
             if (openFileDialog.ShowDialog() == true)
             {
                 string selectedPath = openFileDialog.FileName;
@@ -605,10 +595,8 @@ namespace SensorFilter
                 openFileDialog.Filter           = "Text files (*.txt)|*.txt";
 
                 if (openFileDialog.ShowDialog() == true)
-                {
                     // Заносим данные в таблицу
                     ParseAndInsertFileData(openFileDialog.FileName, true);
-                }
             }
             catch (Exception ex)
             {
@@ -635,15 +623,12 @@ namespace SensorFilter
 
             // Читаем первую строку и на этой основе подбираем нужный парсинг
             if (fileName.StartsWith("CH_FN_"))
-            {
                 // Если это файл характеризации
                 skippedCharacterisationAndCoefficients = fileProcessor.ParseCharacterisationData(lines, GetDbPath(), fileName);
-            }
+
             else if (fileName.StartsWith("VR_FN_"))
-            {
                 // Если это файл верификации
                 skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName);
-            }
 
             // Если надо, докладываем о занесении
             if (
@@ -690,10 +675,7 @@ namespace SensorFilter
                     for (int i = 0; i < files.Length; i++)
                     {
                         // Если запрошена отмена - прерываем всё
-                        if (token.IsCancellationRequested)
-                        {
-                            return (wasScanCancelled: true, newFilesFound: new List<FileInfo>());
-                        }
+                        if (token.IsCancellationRequested) return (wasScanCancelled: true, newFilesFound: new List<FileInfo>());
                         try
                         {
                             // Открываем и смотрим сведения о файле из списка файлов
@@ -731,12 +713,9 @@ namespace SensorFilter
                 var lines = File.ReadAllLines(GetDbInfoPath());
                 foreach (var line in lines)
                     // Получаем строку синхронизации
-                    if (line.StartsWith("LastSyncDate="))
-                    {
-                        string dateStr = line.Split('=')[1];
-                        if (DateTime.TryParse(dateStr, out DateTime lastSyncDate))
-                            return lastSyncDate;
-                    }
+                    if (line.StartsWith("LastSyncDate=") && 
+                        DateTime.TryParse(line.Split('=')[1], out DateTime lastSyncDate)) 
+                        return lastSyncDate;
             }
             return DateTime.MinValue;
         }

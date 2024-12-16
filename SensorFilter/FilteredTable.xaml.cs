@@ -233,7 +233,6 @@ namespace SensorFilter
                 SensorCoefficientsDataGrid. UnselectAll();
                 CheckCoefficientsGridLength();
             }
-                
         }
 
         // Проверяем датагрид на наличие строк
