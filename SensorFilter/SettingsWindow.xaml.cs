@@ -17,14 +17,14 @@ namespace SensorFilter
     public partial class SettingsWindow : Window
     {
         // Инстансы классов
-        private DatabaseHelper  databaseHelper  = new();
-        private FileProcessor   fileProcessor   = new();
+        private readonly DatabaseHelper  databaseHelper  = new();
+        private readonly FileProcessor   fileProcessor   = new();
 
         private CancellationTokenSource _cancellationTokenSource;   // Токен для отмены продолжительных действий
         private bool taskInProgress = false;
 
         // Переменная для хранения ссылки на окно ошибок
-        private ErrorLogWindow _logWindow => ErrorLogger.GetLogWindow();
+        private static ErrorLogWindow LogWindow => ErrorLogger.GetLogWindow();
 
 
         // Временно не используется
@@ -69,10 +69,10 @@ namespace SensorFilter
 
         public void InitializeErrorLogWindowPosition()
         {
-            if (_logWindow != null)
+            if (LogWindow != null)
             {
-                _logWindow.Left = this.Left + this.Width + 10;  // смещение справа от окна + 10 пикселей = координаты левой границы + ширина окна + 10
-                _logWindow.Top  = this.Top;                     // смещение по верху
+                LogWindow.Left = Left + Width + 10;  // смещение справа от окна + 10 пикселей = координаты левой границы + ширина окна + 10
+                LogWindow.Top  = Top;                     // смещение по верху
             }
         }
 
@@ -156,8 +156,7 @@ namespace SensorFilter
             else
             {
                 // Ресетаем поля в главном окне программы
-                MainWindow mainWindow = Owner as MainWindow;
-                if (mainWindow != null)
+                if (Owner is MainWindow mainWindow)
                 {
                     if (GetDbPath().Contains(".db") && File.Exists(GetDbPath()))
                         mainWindow.SearchTools.IsEnabled = true;
@@ -165,8 +164,7 @@ namespace SensorFilter
                         mainWindow.SearchTools.IsEnabled = true;
                     mainWindow.ResetFields();
                 }
-                if (_logWindow != null)
-                    _logWindow.Close();
+                LogWindow?.Close();
             }
         }
 
@@ -417,8 +415,20 @@ namespace SensorFilter
                     // Файлы есть
                     else
                     {
-                        MessageBoxResult result = MessageBox.Show(
-                            $"Обнаружено {newFilesFound.Count()} {GetFileWord(newFilesFound.Count())} для синхронизации\n" +
+                        string file = "файлов";
+                        if (newFilesFound.Count() % 10  ==  1   &&
+                            newFilesFound.Count() % 100 !=  11  )   file = "файл";  // 1;   21;     31
+                        if (newFilesFound.Count() % 10  >=  2   &&
+                            newFilesFound.Count() % 10  <=  4   && (
+                            newFilesFound.Count() % 100 <   10  ||
+                            newFilesFound.Count() % 100 >=  20  ))  file = "файла"; // 2-4; 22-24;  32-34
+
+                        string found = "Обнаружено";
+                        if (newFilesFound.Count() == 1)
+                            found = "Обнаружен";
+
+                            MessageBoxResult result = MessageBox.Show(
+                            $"{found} {newFilesFound.Count()} {file} для синхронизации\n" +
                             "Синхронизировать данные?",
                             "Результаты сканирования",
                             MessageBoxButton.YesNo,
@@ -485,10 +495,9 @@ namespace SensorFilter
             });
 
             // Считаем дубликаты
+            (bool, bool) skippedRows = (false, false);
             int skippedCharacterisation = 0,
-                skippedVerification     = 0,
-                skippedCoefficients     = 0;
-            (int, int, int) skippedRows = (0, 0, 0);
+                skippedVerification     = 0;
 
             bool fullSync = true;
 
@@ -518,9 +527,10 @@ namespace SensorFilter
                     {
                         // При парсинге ловим возврат по кол-ву строк, которые уже записаны в ДБ
                         skippedRows = ParseAndInsertFileData(fileInfo.FullName, false);
-                        skippedCharacterisation += skippedRows.Item1;
-                        skippedVerification     += skippedRows.Item2;
-                        skippedCoefficients     += skippedRows.Item3;
+                        if (skippedRows.Item1)
+                            skippedCharacterisation ++;
+                        if (skippedRows.Item2)
+                            skippedVerification ++;
                         filesWritten++;
 
                         // Обновляем прогрессбар
@@ -547,31 +557,34 @@ namespace SensorFilter
                     // Ловим остальные исключения
                     catch (Exception ex)
                     {
-                        Dispatcher.Invoke(() =>
-                        {
-                            ErrorLogger.LogError(fileInfo.Name, "ОШИБКА", ex.Message);
-                        });
+                        Dispatcher.Invoke(() => { ErrorLogger.LogError(fileInfo.Name, "ОШИБКА", ex.Message); });
                         fullSync = false;
                     }
                 }
             }, token);
 
             // Показываем кол-во пропущенных дубликатов
-            if (skippedCharacterisation != 0 || skippedVerification != 0 || skippedCoefficients != 0)
+            if (skippedCharacterisation != 0 || skippedVerification != 0)
                 MessageBox.Show(
                     "Предотвращено занесение дубликатов строк в базу данных:\n" +
                     $"Строки характеризации:\t{skippedCharacterisation}\n" +
-                    $"Строки верификации:\t{skippedVerification}\n" +
-                    $"Строки коэффициентов:\t{skippedCoefficients}",
+                    $"Строки верификации:\t{skippedVerification}\n",
                     "Внимание",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             else
+            {
+                string file = "файлов";
+                if (filesWritten % 10 == 1 &&
+                filesWritten % 100 != 11) file = "файла"; // 1; 21; 31
+
                 MessageBox.Show(
-                    $"Занесены сведения из {filesWritten} {GetFileWord(filesWritten)}",
+                    $"Занесены сведения из {filesWritten} {file}",
                     "Информация",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
+            }
+                
 
             // Сохраняем дату синхронизации
             if (fullSync)
@@ -609,11 +622,11 @@ namespace SensorFilter
         }
 
         // Универсальный метод занесения данных из файла в ДБ
-        private (int, int, int) ParseAndInsertFileData(string filePath, bool needsOutput)
+        private (bool, bool) ParseAndInsertFileData(string filePath, bool needsOutput)
         {
             // Переменные для подсчета дубликатов строк
-            (int, int) skippedCharacterisationAndCoefficients = (0, 0);
-            int skippedVerification = 0;
+            bool skippedCharacterisationAndCoefficients = false;
+            bool skippedVerification = false;
 
             // Читаем содержимое файла
             var lines = File.ReadAllLines(filePath);
@@ -633,8 +646,8 @@ namespace SensorFilter
             // Если надо, докладываем о занесении
             if (
                 needsOutput
-                && skippedCharacterisationAndCoefficients == (0, 0)
-                && skippedVerification == 0)
+                && !skippedCharacterisationAndCoefficients
+                && !skippedVerification)
                 MessageBox.Show(
                     "Данные успешно добавлены в базу данных",
                     "Информация",
@@ -642,20 +655,17 @@ namespace SensorFilter
                     MessageBoxImage.Information);
             else if (
                 needsOutput
-                && (skippedCharacterisationAndCoefficients.Item1    != 0
-                ||  skippedCharacterisationAndCoefficients.Item2    != 0
-                ||  skippedVerification                             != 0))
+                && (skippedCharacterisationAndCoefficients
+                ||  skippedVerification))
                 MessageBox.Show(
-                    "Предотвращено занесение дубликатов строк:\n" +
-                    $"Характеризации:\t{skippedCharacterisationAndCoefficients.Item1}\n" +
-                    $"Верификации:   \t{skippedVerification}\n" +
-                    $"Коэффициентов: \t{skippedCharacterisationAndCoefficients.Item2}",
+                    "Файл содержит дублирующиеся сведения\n" +
+                    "Операция была отменена",
                     "Внимание",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
 
             // Возвращаем пропущенные дубликаты строк
-            return (skippedCharacterisationAndCoefficients.Item1, skippedVerification, skippedCharacterisationAndCoefficients.Item2);
+            return (skippedCharacterisationAndCoefficients, skippedVerification);
         }
 
         // Метод сканирования указанной директории на наличие файлов характеризации/верификации
@@ -801,18 +811,6 @@ namespace SensorFilter
                 _cancellationTokenSource.Cancel();
                 IsEnabled = false;
             }
-        }
-
-        // Определяем склонение слова в зависимости от значения числа
-        public static string GetFileWord(int count)
-        {
-            if (count % 10  ==  1   && 
-                count % 100 !=  11  )   return "файл";  // 1;   21;     31
-            if (count % 10  >=  2   && 
-                count % 10  <=  4   && (
-                count % 100 <   10  || 
-                count % 100 >=  20  ))  return "файла"; // 2-4; 22-24;  32-34
-            return "файлов";
         }
     }
 }

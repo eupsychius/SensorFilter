@@ -151,7 +151,6 @@ namespace SensorFilter
             }
         }
 
-
         // Получаем характеризацию
         public List<SensorData> GetCharacterisationDataBySerialNumber(string serialNumber, string model)
         {
@@ -241,20 +240,18 @@ namespace SensorFilter
             // Проверка на наличие записи с таким серийным номером и моделью
             string checkQuery = @"
             SELECT SensorId FROM Sensor 
-            WHERE SerialNumber = @serialNumber AND Model = @model";
+            WHERE SerialNumber = @serialNumber AND Model = @model AND Type = @type";
 
             using (var checkCommand = new SQLiteCommand(checkQuery, connection))
             {
-                checkCommand.Parameters.AddWithValue("@serialNumber", serialNumber);
-                checkCommand.Parameters.AddWithValue("@model", model);
+                checkCommand.Parameters.AddWithValue("@serialNumber",   serialNumber);
+                checkCommand.Parameters.AddWithValue("@model",          model);
+                checkCommand.Parameters.AddWithValue("@type",           type);
 
                 var existingId = checkCommand.ExecuteScalar();
 
                 // Если запись с таким серийным номером и моделью найдена, возвращаем её Id
-                if (existingId != null)
-                {
-                    return Convert.ToInt32(existingId);
-                }
+                if (existingId != null) return Convert.ToInt32(existingId);
             }
             
             // Если записи нет, вставляем новый датчик
@@ -274,7 +271,6 @@ namespace SensorFilter
             }
         }
 
-
         public void InsertSensorDataBulk(IEnumerable<SensorData> sensorDataList, SQLiteConnection connection)
         {
             using (var transaction = connection.BeginTransaction())
@@ -293,13 +289,13 @@ namespace SensorFilter
                 Deviation) 
                 VALUES 
                 (@serialNumber, 
-                @model, 
-                @dateTime, 
-                @temperature, 
-                @range, 
-                @pressure, 
-                @voltage, 
-                @resistance, 
+                    @model, 
+                    @dateTime, 
+                    @temperature, 
+                    @range, 
+                    @pressure, 
+                    @voltage, 
+                    @resistance, 
                 @deviation)";
 
                 foreach (var characterisation in sensorDataList)
@@ -345,9 +341,9 @@ namespace SensorFilter
                 CoefficientsDate) 
                 VALUES 
                 (@serialNumber,
-                @model,
-                @coefficientIndex, 
-                @coefficientValue,
+                    @model,
+                    @coefficientIndex, 
+                    @coefficientValue,
                 @coefficientsDate)";
 
                 foreach (var coefficient in sensorCoefficientList)
@@ -397,16 +393,16 @@ namespace SensorFilter
                 Resistance) 
                 VALUES 
                 (@serialNumber, 
-                @model, 
-                @dateTime, 
-                @temperature, 
-                @npi, 
-                @vpi, 
-                @pressureGiven, 
-                @pressureReal, 
-                @currentGiven, 
-                @currentReal, 
-                @voltage, 
+                    @model, 
+                    @dateTime, 
+                    @temperature, 
+                    @npi, 
+                    @vpi, 
+                    @pressureGiven, 
+                    @pressureReal, 
+                    @currentGiven, 
+                    @currentReal, 
+                    @voltage, 
                 @resistance)";
 
                 foreach (var verificationData in verificationDataList)
@@ -451,8 +447,29 @@ namespace SensorFilter
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@type",            type);
-                command.Parameters.AddWithValue("@model",           model);
+                command.Parameters.AddWithValue("@type",            type        );
+                command.Parameters.AddWithValue("@model",           model       );
+
+                long count = (long)command.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
+        public bool CheckCharacterisationStringExists(
+            string serialNumber, 
+            string dateTime, 
+            SQLiteConnection connection)
+        {
+            string query = @"
+            SELECT COUNT(*)
+            FROM SensorData
+            WHERE SerialNumber  = @serialNumber 
+            AND DateTime        = @dateTime";
+
+            using (var command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
+                command.Parameters.AddWithValue("@dateTime",        dateTime    );
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
@@ -477,6 +494,26 @@ namespace SensorFilter
             }
         }
 
+        public bool CheckCoefficientStringExists(string serialNumber, string coefficientIndex, string coefficientsDate, SQLiteConnection connection)
+        {
+            string query = @"
+            SELECT  COUNT(*)
+            FROM    SensorCoefficients
+            WHERE   SerialNumber        = @serialNumber 
+            AND     CoefficientIndex    = @coefficientIndex 
+            AND     CoefficientsDate    = ""@CoefficientsDate""";
+
+            using (var command = new SQLiteCommand (query, connection))
+            {
+                command.Parameters.AddWithValue("@serialNumber",        serialNumber    );
+                command.Parameters.AddWithValue("@coefficientIndex",    coefficientIndex);
+                command.Parameters.AddWithValue("@CoefficientsDate",    coefficientsDate);
+
+                long count = (long)command.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
         public bool CheckVerificationExists(string serialNumber, string type, string model, SQLiteConnection connection)
         {
             string query = @"
@@ -489,6 +526,30 @@ namespace SensorFilter
                 command.Parameters.AddWithValue("@serialNumber",    serialNumber);
                 command.Parameters.AddWithValue("@type",            type    );
                 command.Parameters.AddWithValue("@model",           model       );
+
+                long count = (long)command.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
+        public bool CheckVerificationStringExists(
+            string serialNumber, 
+            string model, 
+            string dateTime, 
+            SQLiteConnection connection)
+        {
+            string query = @"
+            SELECT  COUNT(*) 
+            FROM    SensorVerification
+            WHERE   SerialNumber    = @serialNumber 
+            AND     Model           = @model
+            AND     DateTime        = @dateTime";
+
+            using (var command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
+                command.Parameters.AddWithValue("@model",           model       );
+                command.Parameters.AddWithValue("@dateTime",        dateTime    );
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
