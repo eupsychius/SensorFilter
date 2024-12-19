@@ -71,8 +71,8 @@ namespace SensorFilter
         {
             if (LogWindow != null)
             {
-                LogWindow.Left = Left + Width + 10;  // смещение справа от окна + 10 пикселей = координаты левой границы + ширина окна + 10
-                LogWindow.Top  = Top;                     // смещение по верху
+                LogWindow.Left = Left + Width + 10; // смещение справа от окна + 10 пикселей = координаты левой границы + ширина окна + 10
+                LogWindow.Top  = Top;               // смещение по верху
             }
         }
 
@@ -415,17 +415,15 @@ namespace SensorFilter
                     // Файлы есть
                     else
                     {
-                        string file = "файлов";
-                        if (newFilesFound.Count() % 10  ==  1   &&
-                            newFilesFound.Count() % 100 !=  11  )   file = "файл";  // 1;   21;     31
+
+                        string found    = "Обнаружено";
+                        string file     = "файлов";
+                        if (newFilesFound.Count() % 10 == 1 &&
+                            newFilesFound.Count() % 100 != 11)  {   found = "Обнаружен"; file = "файл"; }   //  1;      21;     31
                         if (newFilesFound.Count() % 10  >=  2   &&
                             newFilesFound.Count() % 10  <=  4   && (
                             newFilesFound.Count() % 100 <   10  ||
-                            newFilesFound.Count() % 100 >=  20  ))  file = "файла"; // 2-4; 22-24;  32-34
-
-                        string found = "Обнаружено";
-                        if (newFilesFound.Count() == 1)
-                            found = "Обнаружен";
+                            newFilesFound.Count() % 100 >=  20  ))  file = "файла";                         //  2-4;    22-24;  32-34
 
                             MessageBoxResult result = MessageBox.Show(
                             $"{found} {newFilesFound.Count()} {file} для синхронизации\n" +
@@ -485,6 +483,7 @@ namespace SensorFilter
         {
             // Получаем список на синхронизацию
             int filesWritten    = 0;
+            int filesPassed     = 0;
             int filesTotal      = newFiles.Count();
 
             // Показываем прогрессбар
@@ -495,7 +494,7 @@ namespace SensorFilter
             });
 
             // Считаем дубликаты
-            (bool, bool) skippedRows = (false, false);
+            (bool, bool, bool) skippedRows = (false, false, false);
             int skippedCharacterisation = 0,
                 skippedVerification     = 0;
 
@@ -525,19 +524,19 @@ namespace SensorFilter
                     // Парсим файл из списка
                     try
                     {
-                        // При парсинге ловим возврат по кол-ву строк, которые уже записаны в ДБ
+                        // При парсинге ловим возврат по дубликатам файлов
                         skippedRows = ParseAndInsertFileData(fileInfo.FullName, false);
-                        if (skippedRows.Item1)
-                            skippedCharacterisation ++;
-                        if (skippedRows.Item2)
-                            skippedVerification ++;
-                        filesWritten++;
+                        if (skippedRows.Item1) skippedCharacterisation++;
+                        if (skippedRows.Item2) skippedVerification++;
+                        if (!skippedRows.Item3) filesWritten++;
+                        
+                        filesPassed++;
 
                         // Обновляем прогрессбар
                         Dispatcher.Invoke(() =>
                         {
-                            SyncProgressBar.Value = (double)filesWritten / filesTotal * 100;
-                            ProgressText.   Text = $"{filesWritten}/{filesTotal}";
+                            SyncProgressBar.Value = (double)filesPassed / filesTotal * 100;
+                            ProgressText.   Text = $"{filesPassed}/{filesTotal}";
                         });
                     }
                     // Ловим исключение-отмену
@@ -565,13 +564,21 @@ namespace SensorFilter
 
             // Показываем кол-во пропущенных дубликатов
             if (skippedCharacterisation != 0 || skippedVerification != 0)
+            {
+                string file = "файлов";
+                if (filesWritten % 10 == 1 &&
+                filesWritten % 100 != 11) file = "файла"; // 1; 21; 31
+
                 MessageBox.Show(
-                    "Предотвращено занесение дубликатов строк в базу данных:\n" +
-                    $"Строки характеризации:\t{skippedCharacterisation}\n" +
-                    $"Строки верификации:\t{skippedVerification}\n",
-                    "Внимание",
+                    $"Занесены сведения из {filesWritten} ({Math.Round((double)filesWritten / filesPassed * 100, 1)}%) {file}\n" +
+                    "Предотвращено занесение дубликатов в базу данных:\n" +
+                    $"Файлы характеризации:\t{skippedCharacterisation}\n" +
+                    $"Файлы верификации:\t{skippedVerification}\n",
+                    "Информация",
                     MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    MessageBoxImage.Information);
+            }
+                
             else
             {
                 string file = "файлов";
@@ -585,10 +592,8 @@ namespace SensorFilter
                     MessageBoxImage.Information);
             }
                 
-
             // Сохраняем дату синхронизации
-            if (fullSync)
-                SaveLastSyncDate(DateTime.Now);
+            if (fullSync) SaveLastSyncDate(DateTime.Now);
             UpdateTooltips();
 
             // Возвращаем кнопки
@@ -603,9 +608,11 @@ namespace SensorFilter
             try
             {
                 // Открываем проводник, указываем на файл
-                OpenFileDialog openFileDialog   = new();
-                openFileDialog.InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pending Data");
-                openFileDialog.Filter           = "Text files (*.txt)|*.txt";
+                OpenFileDialog openFileDialog = new()
+                {
+                    InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pending Data"),
+                    Filter = "Text files (*.txt)|*.txt"
+                };
 
                 if (openFileDialog.ShowDialog() == true)
                     // Заносим данные в таблицу
@@ -622,11 +629,12 @@ namespace SensorFilter
         }
 
         // Универсальный метод занесения данных из файла в ДБ
-        private (bool, bool) ParseAndInsertFileData(string filePath, bool needsOutput)
+        private (bool, bool, bool) ParseAndInsertFileData(string filePath, bool needsOutput)
         {
             // Переменные для подсчета дубликатов строк
-            bool skippedCharacterisationAndCoefficients = false;
-            bool skippedVerification = false;
+            bool skippedCharacterisation    = false;
+            bool skippedVerification        = false;
+            bool skippedFile                = false;
 
             // Читаем содержимое файла
             var lines = File.ReadAllLines(filePath);
@@ -635,18 +643,21 @@ namespace SensorFilter
             string fileName = Path.GetFileName(filePath);
 
             // Читаем первую строку и на этой основе подбираем нужный парсинг
-            if (fileName.StartsWith("CH_FN_"))
-                // Если это файл характеризации
-                skippedCharacterisationAndCoefficients = fileProcessor.ParseCharacterisationData(lines, GetDbPath(), fileName);
-
-            else if (fileName.StartsWith("VR_FN_"))
-                // Если это файл верификации
+            if (fileName.StartsWith("CH_FN_"))      // Если это файл характеризации
+            {
+                skippedCharacterisation = fileProcessor.ParseCharacterisationData(lines, GetDbPath(), fileName);
+                skippedFile = skippedCharacterisation;
+            }
+            else if (fileName.StartsWith("VR_FN_")) // Если это файл верификации
+            {
                 skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName);
+                skippedFile = skippedVerification;
+            }
 
             // Если надо, докладываем о занесении
             if (
                 needsOutput
-                && !skippedCharacterisationAndCoefficients
+                && !skippedCharacterisation
                 && !skippedVerification)
                 MessageBox.Show(
                     "Данные успешно добавлены в базу данных",
@@ -655,7 +666,7 @@ namespace SensorFilter
                     MessageBoxImage.Information);
             else if (
                 needsOutput
-                && (skippedCharacterisationAndCoefficients
+                && (skippedCharacterisation
                 ||  skippedVerification))
                 MessageBox.Show(
                     "Файл содержит дублирующиеся сведения\n" +
@@ -665,7 +676,7 @@ namespace SensorFilter
                     MessageBoxImage.Warning);
 
             // Возвращаем пропущенные дубликаты строк
-            return (skippedCharacterisationAndCoefficients, skippedVerification);
+            return (skippedCharacterisation, skippedVerification, skippedFile);
         }
 
         // Метод сканирования указанной директории на наличие файлов характеризации/верификации
@@ -702,7 +713,7 @@ namespace SensorFilter
                         catch (Exception ex)                    { Console.WriteLine($"Ошибка: {ex.Message}");        }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     MessageBox.Show(
                         "Выполнить сканирование по указанному пути невозможно",

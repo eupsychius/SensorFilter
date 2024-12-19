@@ -180,12 +180,12 @@ namespace SensorFilter
 
                 // Если словили дублирующуюся строку, то сведения не заносятся
                 if (fileDupe == 2)
-                    ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки файла датчика уже есть в базе данных");
+                    ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл характеризации содержит дубликаты строк");
                 else
                 {
                     // Если некоторые сведения о характеризации имеются, то логируем предупреждение
                     if (fileDupe == 1)
-                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о характеризации датчика уже есть в базе данных");
+                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о характеризации уже есть в базе данных");
 
                     // Заносим сведения о датчике
                     try { databaseHelper.InsertSensorDataBulk(sensorDataList, connection); }
@@ -331,12 +331,12 @@ namespace SensorFilter
 
                 // Если словили дублирующуюся строку, то сведения не заносятся
                 if (fileDupe == 2)
-                    ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Строки файла датчика уже есть в базе данных");
+                    ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл верификации содержит дубликаты строк");
                 else
                 {
                     // Если некоторые сведения о характеризации имеются, то логируем предупреждение
                     if (fileDupe == 1)
-                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации датчика уже есть в базе данных");
+                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации уже есть в базе данных");
 
                     // Вставляем все данные верификации пакетом
                     try { databaseHelper.InsertVerificationDataBulk(verificationDataList, connection); }
