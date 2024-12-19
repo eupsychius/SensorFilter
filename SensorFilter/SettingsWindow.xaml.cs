@@ -26,7 +26,6 @@ namespace SensorFilter
         // Переменная для хранения ссылки на окно ошибок
         private static ErrorLogWindow LogWindow => ErrorLogger.GetLogWindow();
 
-
         // Временно не используется
         //bool unsavedChanges = false;
 
@@ -45,7 +44,7 @@ namespace SensorFilter
                 UpdateTooltips();                               // Выводим подсказки для кнопок
             }
             else
-                AdminGrBox.Visibility   = Visibility.Hidden;
+                AdminGrBox.Visibility   = Visibility.Collapsed;
         }
 
         // Получаем путь до ДБ из конфига

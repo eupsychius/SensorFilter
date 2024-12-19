@@ -7,7 +7,7 @@
         xmlns:control   ="clr-namespace:FilterDataGrid;assembly=FilterDataGrid"
         mc:Ignorable    ="d"
         WindowStartupLocation="CenterScreen"
-        Icon="/icon.ico" Title="Показатели датчика" 
+        Icon="/icon.ico" Title="Сведения датчика" 
            Width="900"     Height="710" 
         MinWidth="900"  MinHeight="710">
     

@@ -75,6 +75,13 @@ namespace SensorFilter
         private void GoToSettingsWindow(object sender, RoutedEventArgs e)
         {
             settings = new SettingsWindow(adminRightsEnabled);
+
+            settings.Left   = Left  + 20;
+            settings.Top    = Top   + 20;
+
+            settings.Height = 361;
+            if (!adminRightsEnabled) settings.Height = 198;
+
             settings.Owner = this;
             settings.ShowDialog();
         }

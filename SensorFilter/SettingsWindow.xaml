@@ -6,7 +6,6 @@
         xmlns:local     = "clr-namespace:SensorFilter"
         mc:Ignorable    = "d"
         Title="Настройки программы"
-        WindowStartupLocation="CenterScreen"
         Height="361" Width="450"
         ResizeMode="NoResize" Icon="/icon.ico">
     <Grid>
@@ -14,7 +13,7 @@
             <GroupBox FontSize="16" x:Name="Settings"   Header="Путь до базы данных" Margin="0,0,0,10" >
                 <Grid>
                     <TextBox    Height="24" Margin="5,5,34,5" x:Name="DbPathText"
-                                IsReadOnly="True" FontSize="14"/>
+                                IsReadOnly="True" FontSize="12"/>
                     <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectDbButton"
                                 Content="🗀" FontWeight="Bold" Click="SelectDbButton_Click" HorizontalAlignment="Right" />
                 </Grid>
@@ -29,7 +28,7 @@
                     
                     <Grid>
                         <TextBox    Height="24" Margin="5,5,34,5" x:Name="ArchivePathText"
-                                    IsReadOnly="True" FontSize="14"/>
+                                    IsReadOnly="True" FontSize="12"/>
                         <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectArchiveButton"
                                     Content="🗀" FontWeight="Bold" Click="SelectArchiveButton_Click" HorizontalAlignment="Right" />
                     </Grid>
