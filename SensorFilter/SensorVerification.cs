@@ -2,10 +2,8 @@
 
 public class SensorVerification
 {
-    public  int         Id              { get; set; }
-    public  string      SerialNumber    { get; set; }
-    public  string      Type            { get; set; }
-    public  string      Model           { get; set; }
+    public  int         VerificationId  { get; set; }
+    public  int         SensorId        { get; set; }
     public  DateTime    DateTime        { get; set; }
     public  double      Temperature     { get; set; }
     public  double      NPI             { get; set; }

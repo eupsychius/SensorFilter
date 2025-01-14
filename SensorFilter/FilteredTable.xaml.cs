@@ -20,41 +20,40 @@ namespace SensorFilter
         private DatabaseHelper databaseHelper = new DatabaseHelper();
 
         bool adminRights;
+        int sensorId;
 
-        public FilteredTable(bool admin)
+        public FilteredTable(bool admin, int id)
         {
             InitializeComponent();
 
             adminRights = admin;
+            sensorId = id;
 
             AdminTools.IsEnabled = adminRights;
             ExportCoefficientsButton.Visibility = Visibility.Hidden;
         }
 
         // Заносим сведения о датчике по серийнику и модели
-        public void FilterBySerialNumber(string serialNumber, string model)
+        public void FilterBySerialNumber(int sensorId)
         {
             try
             {
                 // Читаем БД через Хелпер
-                var allSensorData       = databaseHelper.GetCharacterisationDataBySerialNumber  (serialNumber, model);
-                var allVerificationData = databaseHelper.GetVerificationDataBySerialNumber      (serialNumber, model);
-                var allCoefficientsData = databaseHelper.GetCoefficientsDataBySerialNumber      (serialNumber, model);
+                var allCharacterisationData = databaseHelper.GetCharacterisationData(sensorId);
+                var allVerificationData     = databaseHelper.GetVerificationData    (sensorId);
+                var allCoefficientsData     = databaseHelper.GetCoefficientsData    (sensorId);
 
                 // Пишем в таблицу
-                FilteredDataGrid.           ItemsSource = allSensorData;
+                FilteredDataGrid.           ItemsSource = allCharacterisationData;
                 VerifiedDataGrid.           ItemsSource = allVerificationData;
                 SensorCoefficientsDataGrid. ItemsSource = allCoefficientsData;
 
                 // Заполняем лейблы над таблицей
-                var sensor = databaseHelper.GetSensorTypeBySerialNumber(serialNumber, model);
+                var sensor = databaseHelper.GetSensorInfo(sensorId);
 
-                SensorID.Text = serialNumber;
-
-                if (sensor != null)
-                    SensorType.Text     = sensor.Type;
-
-                SensorModel.Text = model;
+                SensorID.   Text = sensor.Value.SerialNumber;
+                SensorType. Text = sensor.Value.Type;
+                SensorModel.Text = sensor.Value.Model;
             }
             catch
             {
@@ -73,7 +72,7 @@ namespace SensorFilter
             try
             {
                 // Получаем список коэффициентов, сгруппированных по датам
-                var coefficientsByDate = await databaseHelper.GetCoefficientsBySerialNumber(SensorID.Text, SensorModel.Text);
+                var coefficientsByDate = await databaseHelper.GetCoefficients(sensorId);
 
                 // Проверяем количество дат
                 if (coefficientsByDate.Count == 1)
@@ -111,13 +110,14 @@ namespace SensorFilter
         private string GetSaveFilePath()
         {
             // Создаём SaveFileDialog
-            SaveFileDialog saveFileDialog = new();
-
-            // Настраиваем диалоговое окно
-            saveFileDialog.Filter       = "Text file (*.txt)|*.txt";    // Фильтр файлов
-            saveFileDialog.FileName     = $"SN{SensorID.Text}_C";       // Начальное имя файла
-            saveFileDialog.DefaultExt   = ".txt";                       // Расширение по умолчанию
-            saveFileDialog.Title        = "Экспорт файла";              // Заголовок окна
+            SaveFileDialog saveFileDialog = new()
+            {
+                // Настраиваем диалоговое окно
+                Filter      = "Text file (*.txt)|*.txt",    // Фильтр файлов
+                FileName    = $"SN{SensorID.Text}_C",       // Начальное имя файла
+                DefaultExt  = ".txt",                       // Расширение по умолчанию
+                Title       = "Экспорт файла"               // Заголовок окна
+            };
 
             // Показываем диалоговое окно пользователю
             bool? result = saveFileDialog.ShowDialog();
@@ -191,21 +191,21 @@ namespace SensorFilter
         // Формирование запроса на удаление выбранных строк
         private void DeleteSelectedRows()
         {
-            var sensorDataIds       = FilteredDataGrid.SelectedItems.           Cast<SensorData>().         Select(s => s.DataId).  ToList();
-            var verificationDataIds = VerifiedDataGrid.SelectedItems.           Cast<SensorVerification>(). Select(v => v.Id).      ToList();
-            var coefficientDataIds  = SensorCoefficientsDataGrid.SelectedItems. Cast<SensorCoefficients>(). Select(c => c.Id).      ToList();
+            var characterisationDataIds = FilteredDataGrid.SelectedItems.           Cast<SensorCharacterisation>(). Select(s => s.CharacterisationId).  ToList();
+            var verificationDataIds     = VerifiedDataGrid.SelectedItems.           Cast<SensorVerification>().     Select(v => v.VerificationId).      ToList();
+            var coefficientDataIds      = SensorCoefficientsDataGrid.SelectedItems. Cast<SensorCoefficients>().     Select(c => c.CoefficientId).       ToList();
 
-            if (sensorDataIds.      Any()) databaseHelper.DeleteSensorData      (sensorDataIds);
-            if (verificationDataIds.Any()) databaseHelper.DeleteVerificationData(verificationDataIds);
-            if (coefficientDataIds. Any()) databaseHelper.DeleteCoefficientData (coefficientDataIds);
+            if (characterisationDataIds.Any()) databaseHelper.DeleteSensorCharacterisationData  (characterisationDataIds);
+            if (verificationDataIds.    Any()) databaseHelper.DeleteVerificationData            (verificationDataIds);
+            if (coefficientDataIds.     Any()) databaseHelper.DeleteCoefficientData             (coefficientDataIds);
 
             // Проверка наличия данных по серийному номеру и модели
-            bool hasData = databaseHelper.HasSensorRelatedData(SensorID.Text, SensorModel.Text);
+            bool hasData = databaseHelper.HasSensorRelatedData(sensorId);
 
             // Если данных нет, удаляем сам датчик
             if (!hasData)
             {
-                databaseHelper.DeleteSensor(SensorID.Text, SensorModel.Text);
+                databaseHelper.DeleteSensor(sensorId);
                 MessageBox.Show(
                     "Датчик был удалён, так как записи о нём отсутствуют в связанных таблицах.",
                     "Информация",
@@ -218,7 +218,7 @@ namespace SensorFilter
                 CheckCoefficientsGridLength();
 
             // Обновляем таблицы
-            FilterBySerialNumber(SensorID.Text, SensorModel.Text);
+            FilterBySerialNumber(sensorId);
         }
 
         // Аккуратное удаление строк при переключении вкладки
@@ -255,7 +255,7 @@ namespace SensorFilter
 
             if (result == MessageBoxResult.Yes)
             {
-                if (DeleteSensorAndAllRelatedData(SensorID.Text, SensorModel.Text))
+                if (DeleteSensorAndAllRelatedData(SensorID.Text, SensorType.Text, SensorModel.Text))
                 {
                     MessageBox.Show(
                         "Датчик и все связанные данные успешно удалены.",
@@ -268,18 +268,18 @@ namespace SensorFilter
         }
 
         // Формирование запросов на удаление данных о датчике
-        private bool DeleteSensorAndAllRelatedData(string serialNumber, string model)
+        private bool DeleteSensorAndAllRelatedData(string serialNumber, string type, string model)
         {
             try
             {
                 // Удаление всех связанных данных
-                databaseHelper.DeleteSensorDataBySerialNumber       (serialNumber, model);
-                databaseHelper.DeleteVerificationDataBySerialNumber (serialNumber, model);
-                databaseHelper.DeleteCoefficientDataBySerialNumber  (serialNumber, model);
+                databaseHelper.DeleteCharacterisationData   (sensorId);
+                databaseHelper.DeleteVerificationData       (sensorId);
+                databaseHelper.DeleteCoefficientData        (sensorId);
                 // Удаление самого датчика
-                databaseHelper.DeleteSensor                         (serialNumber, model);
+                databaseHelper.DeleteSensor                 (sensorId);
                 // Обновление таблиц после удаления
-                FilterBySerialNumber                                (serialNumber, model);
+                FilterBySerialNumber                        (sensorId);
 
                 return true;
             }

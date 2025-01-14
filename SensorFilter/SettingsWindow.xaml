@@ -6,11 +6,11 @@
         xmlns:local     = "clr-namespace:SensorFilter"
         mc:Ignorable    = "d"
         Title="Настройки программы"
-        Height="361" Width="450"
+        Height="319" Width="450"
         ResizeMode="NoResize" Icon="/icon.ico">
     <Grid>
-        <StackPanel VerticalAlignment="Top" Margin="20,8,20,20">
-            <GroupBox FontSize="16" x:Name="Settings"   Header="Путь до базы данных" Margin="0,0,0,10" >
+        <StackPanel VerticalAlignment="Top" Margin="20,7,20,20">
+            <GroupBox FontSize="16" x:Name="Settings" Header="Путь до базы данных">
                 <Grid>
                     <TextBox    Height="24" Margin="5,5,34,5" x:Name="DbPathText"
                                 IsReadOnly="True" FontSize="12"/>
@@ -19,53 +19,47 @@
                 </Grid>
             </GroupBox>
 
-            <GroupBox FontSize="16" x:Name="AdminGrBox" Header="Настройки администратора" >
+            <Grid x:Name="AdminGrBox" Margin="0,14,0,0">
                 <StackPanel>
-                    
-                    <Button x:Name="CreateDbButton" Content="Создать базу данных" FontSize="16" Click="CreateDbButton_Click" Margin="5" />
-                    
-                    <TextBlock Text="Путь до архива записей" FontSize="16" />
-                    
-                    <Grid>
-                        <TextBox    Height="24" Margin="5,5,34,5" x:Name="ArchivePathText"
-                                    IsReadOnly="True" FontSize="12"/>
-                        <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectArchiveButton"
-                                    Content="🗀" FontWeight="Bold" Click="SelectArchiveButton_Click" HorizontalAlignment="Right" />
-                    </Grid>
-
-                    <Grid>
-                        <Grid x:Name="ScanSyncStackPanel" Visibility="Visible">
+                    <Button x:Name="CreateDbButton" Height="24" Content="Создать базу данных" FontSize="16" Click="CreateDbButton_Click" Margin="11,0,11,8" />
+                    <GroupBox Header="Путь до архива записей" FontSize="16" Margin="0,0,0,14">
+                        <Grid>
+                            <TextBox    Height="24" Margin="5,5,34,5" x:Name="ArchivePathText"
+                                        IsReadOnly="True" FontSize="12"/>
+                            <Button     Height="24" Width="24"  Margin="0,5,5,5" x:Name="SelectArchiveButton"
+                                        Content="🗀" FontWeight="Bold" Click="SelectArchiveButton_Click" HorizontalAlignment="Right" />
+                        </Grid>
+                    </GroupBox>
+                    <Grid Height="24">
+                        <Grid x:Name="ScanSyncStackPanel" Visibility="Visible" VerticalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Grid Grid.Column ="0">
-                                <Button Margin="5" Height="24" Content="Сканировать"    Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"                       />
-                                <Button Margin="5" Height="24" Content="Прервать"       Name="StopScanButton"       Click="StopScanButton_Click"        Visibility="Hidden" />
+                            <Grid Grid.Column ="0" VerticalAlignment="Center">
+                                <Button Margin="11,0,5,0" Height="24" Content="Сканировать архив"  Name="ScanDirectoryButton"  Click="ScanDirectoryButton_Click"   FontSize="16"                       />
+                                <Button Margin="11,0,5,0" Height="24" Content="Прервать"           Name="StopScanButton"       Click="StopScanButton_Click"        FontSize="16"   Visibility="Hidden" />
                             </Grid>
 
-                            <Button Grid.Column="1" Margin="5" Height="24" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" />
+                            <Button Grid.Column="1" Margin="5,0,11,0" Height="24" Content="Добавить вручную" Name="AddFilesButton" Click="AddFilesButton_Click" FontSize="16"/>
 
                         </Grid>
 
                         <Grid Margin="5" x:Name="SyncProgress" Visibility="Hidden">
-                            <ProgressBar    x:Name="SyncProgressBar" Height="24" Margin="0,5,29,5"/>
-                            <TextBlock      x:Name="ProgressText"
-                        FontSize="16" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
-                            <Button         x:Name="StopButton"
-                        Width="24" Height="24" FontSize="20" HorizontalAlignment="Right" Click="StopButton_Click">
+                            <ProgressBar    x:Name="SyncProgressBar" Height="24" Margin="0,5,30,5"/>
+                            <TextBlock      x:Name="ProgressText" FontSize="16" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                            
+                            <Button         x:Name="StopButton" Width="24" Height="24" FontSize="20" HorizontalAlignment="Right" Click="StopButton_Click">
                                 <TextBlock Text="◼️" Margin="-1,-6,0,0"/>
                             </Button>
+                            
                         </Grid>
 
                     </Grid>
-
                 </StackPanel>
-                
-            </GroupBox>
-
-
-            <Button x:Name="SaveButton" Content="Сохранить" Width="150" FontSize="20" Margin="0,20,0,0" Click="SaveButton_Click" VerticalAlignment="Bottom"/>
+            </Grid>
+            
+            <Button x:Name="SaveButton" Content="Сохранить" Width="150" FontSize="16" Margin="0,20,0,20" Click="SaveButton_Click" VerticalAlignment="Bottom" Height="24"/>
         </StackPanel>
     </Grid>
 </Window>

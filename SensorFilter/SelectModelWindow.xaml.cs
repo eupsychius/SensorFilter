@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace SensorFilter
 {
     public partial class SelectModelWindow : Window
     {
+        public string SelectedType { get; private set; }
         public string SelectedModel { get; private set; }
 
         public SelectModelWindow(List<Sensor> sensors) //List<string> types, List<string> models, int sensorCount
@@ -34,23 +36,18 @@ namespace SensorFilter
                 var selectedItem = ModelComboBox.SelectedItem.ToString();
 
                 if (selectedItem == "Не указано")
-                    SelectedModel = "-"; // Если выбран "Не указано", присваиваем "-"
+                {
+                    SelectedType    = "-";
+                    SelectedModel   = "-"; // Если выбран "Не указано", присваиваем "-"
+                }
                 else
                 {
                     // Разбиваем строку "Type (Model)" и извлекаем модель (после скобок)
-                    var startIndex = selectedItem.IndexOf('(');
-                    var endIndex = selectedItem.IndexOf(')');
+                    string[] parts  = selectedItem.Split(new[] { " (" }, StringSplitOptions.None);
 
-                    if (startIndex != -1 && endIndex != -1)
-                    {
-                        // Извлекаем строку между скобками (модель)
-                        SelectedModel = selectedItem.Substring(startIndex + 1, endIndex - startIndex - 1).Trim();
-                    }
-                    else
-                    {
-                        // На случай, если формат отличается (хотя это не должно происходить)
-                        SelectedModel = selectedItem;
-                    }
+                    // Убираем закрывающую скобку из второй части
+                    SelectedType    = parts[0];
+                    SelectedModel   = parts[1].TrimEnd(')');
                 }
 
                 DialogResult = true; // Закрываем окно и возвращаем результат

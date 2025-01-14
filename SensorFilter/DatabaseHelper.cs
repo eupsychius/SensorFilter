@@ -30,64 +30,64 @@ namespace SensorFilter
                         // Создание таблиц
                         string createSensorTable = @"
                         CREATE TABLE Sensor (
-	                    SensorId	        INTEGER,
-	                    Channel	            INTEGER     NOT NULL,
-	                    SerialNumber	    TEXT        NOT NULL,
-	                    Type	            TEXT        NOT NULL,
-	                    Model	            TEXT        NOT NULL,
-	                    HasCharacterisation	INTEGER     DEFAULT 0,
-	                    HasCoefficients	    INTEGER     DEFAULT 0,
-	                    HasVerification	    INTEGER     DEFAULT 0,
-	                    PRIMARY KEY(SensorId AUTOINCREMENT)
-                        )";
+                        SensorId            INTEGER     UNIQUE,
+                        SerialNumber	    TEXT        NOT NULL,
+                        Type	            TEXT        NOT NULL,
+                        Model	            TEXT        NOT NULL,
+                        HasCharacterisation	INTEGER     DEFAULT 0,
+                        HasCoefficients	    INTEGER     DEFAULT 0,
+                        HasVerification	    INTEGER     DEFAULT 0,
+                        PRIMARY KEY(SensorId AUTOINCREMENT)
+                        );";
                         
-                        string createSensorDataTable = @"
-                        CREATE TABLE IF NOT EXISTS SensorData (
-                        DataId              INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber        TEXT        NOT NULL,
-                        Model               TEXT        NOT NULL,
-                        DateTime            TEXT        NOT NULL,
-                        Temperature         REAL,
-                        Range               INTEGER,
-                        Pressure            REAL,
-                        Voltage             REAL,
-                        Resistance          REAL,
-                        Deviation           REAL,
-                        FOREIGN KEY (SerialNumber) REFERENCES Sensor(SerialNumber)
+                        string createSensorCharacterisationTable = @"
+                        CREATE TABLE SensorCharacterisation (
+                        CharacterisationId	INTEGER     UNIQUE,
+                        SensorId	        INTEGER     NOT NULL,
+                        DateTime	        TEXT        NOT NULL,
+                        Temperature	        REAL,
+                        Range	            INTEGER,
+                        Pressure	        REAL,
+                        Voltage	            REAL,
+                        Resistance	        REAL,
+                        Deviation	        REAL,
+                        PRIMARY KEY(CharacterisationId AUTOINCREMENT),
+                        FOREIGN KEY(SensorId) REFERENCES Sensor(SensorId)
                         );";
 
                         string createSensorCoefficientsTable = @"
-                        CREATE TABLE IF NOT EXISTS SensorCoefficients (
-                        Id                  INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber        INTEGER     NOT NULL,
-                        Model               TEXT        NOT NULL,
-                        CoefficientIndex    INTEGER,
-                        CoefficientValue    REAL,
-                        CoefficientsDate	DATETIME    NOT NULL
+                        CREATE TABLE SensorCoefficients (
+                        CoefficientId	    INTEGER     UNIQUE,
+                        SensorId	        INTEGER     NOT NULL,
+                        CoefficientIndex	INTEGER,
+                        CoefficientValue	REAL,
+                        CoefficientsDate	DATETIME    NOT NULL,
+                        PRIMARY KEY(CoefficientId AUTOINCREMENT),
+                        FOREIGN KEY(SensorId) REFERENCES Sensor(SensorId)
                         );";
 
                         string createSensorVerificationTable = @"
-                        CREATE TABLE IF NOT EXISTS SensorVerification (
-                        Id                  INTEGER     PRIMARY KEY AUTOINCREMENT,
-                        SerialNumber        INTEGER     NOT NULL,
-                        Model               TEXT        NOT NULL,
-                        DateTime            DATETIME    NOT NULL,
-                        Temperature         REAL,
-                        NPI                 REAL,
-                        VPI                 REAL,
-                        PressureGiven       REAL,
-                        PressureReal        REAL,
-                        CurrentGiven        REAL,
-                        CurrentReal         REAL,
-                        Voltage             REAL,
-                        Resistance          REAL,
-                        FOREIGN KEY(SerialNumber) REFERENCES Sensor(SerialNumber)
+                        CREATE TABLE SensorVerification (
+                        VerificationId	    INTEGER     UNIQUE,
+                        SensorId	        INTEGER     NOT NULL,
+                        DateTime	        DATETIME    NOT NULL,
+                        Temperature	        REAL,
+                        NPI	                REAL,
+                        VPI	                REAL,
+                        PressureGiven	    REAL,
+                        PressureReal	    REAL,
+                        CurrentGiven	    REAL,
+                        CurrentReal	        REAL,
+                        Voltage	            REAL,
+                        Resistance	        REAL,
+                        PRIMARY KEY(VerificationId AUTOINCREMENT),
+                        FOREIGN KEY(SensorId) REFERENCES Sensor(SensorId)
                         );";
 
-                        using (SQLiteCommand command = new SQLiteCommand(createSensorTable,             connection)) { command.ExecuteNonQuery(); }
-                        using (SQLiteCommand command = new SQLiteCommand(createSensorDataTable,         connection)) { command.ExecuteNonQuery(); }
-                        using (SQLiteCommand command = new SQLiteCommand(createSensorCoefficientsTable, connection)) { command.ExecuteNonQuery(); }
-                        using (SQLiteCommand command = new SQLiteCommand(createSensorVerificationTable, connection)) { command.ExecuteNonQuery(); }
+                        using (SQLiteCommand command = new(createSensorTable,                 connection)) { command.ExecuteNonQuery(); }
+                        using (SQLiteCommand command = new(createSensorCharacterisationTable, connection)) { command.ExecuteNonQuery(); }
+                        using (SQLiteCommand command = new(createSensorCoefficientsTable,     connection)) { command.ExecuteNonQuery(); }
+                        using (SQLiteCommand command = new(createSensorVerificationTable,     connection)) { command.ExecuteNonQuery(); }
                     }
                 }
                 catch (Exception ex)
@@ -112,32 +112,38 @@ namespace SensorFilter
         }
 
         // Метод динамического получения строки подключения
-        private string GetConnStr()
+        private static string ConnStr => $"Data Source={Properties.DataBase.Default.DataBasePath};Version=3;";
+
+        public static int? GetSensorId(string serialNumber, string type, string model)
         {
-            return $"Data Source={Properties.DataBase.Default.DataBasePath};Version=3;";
+            using var connection = new SQLiteConnection(ConnStr);
+
+            string query = "SELECT SensorId FROM Sensor WHERE SerialNumber = @SerialNumber AND Type = @Type AND Model = @Model";
+            return connection.QueryFirstOrDefault<int?>(query, new { SerialNumber = serialNumber, Type = type, Model = model });
         }
 
-        // Получаем модели и типы по серийному номеру
-        public (List<Sensor>, List<string>, List<string>) GetSensorBySerialNumber(string serialNumber)
+        /* Получаем модели и типы по серийному номеру
+         * Этот метод предполагает использование именно серийного номера для получения необходимых данных
+         */
+        public static (List<Sensor>, List<string>, List<string>) GetSensorBySerialNumber(string serialNumber)
         {
             try
             {
-                using (var connection = new SQLiteConnection(GetConnStr()))
-                {
-                    // Получаем все данные по серийному номеру
-                    string query = "SELECT * FROM Sensor WHERE SerialNumber = @SerialNumber";
-                    var sensorList = connection.Query<Sensor>(query, new { SerialNumber = serialNumber }).AsList();
+                using var connection = new SQLiteConnection(ConnStr);
 
-                    // Получаем список уникальных моделей
-                    string modelQuery = "SELECT DISTINCT Model FROM Sensor WHERE SerialNumber = @SerialNumber";
-                    var uniqueModels = connection.Query<string>(modelQuery, new { SerialNumber = serialNumber }).AsList();
+                // Получаем все данные по серийному номеру
+                string query = "SELECT * FROM Sensor WHERE SerialNumber = @SerialNumber";
+                var sensorList = connection.Query<Sensor>(query, new { SerialNumber = serialNumber }).AsList();
 
-                    // Получаем список уникальных типов
-                    string typeQuery = "SELECT DISTINCT Type FROM Sensor WHERE SerialNumber = @SerialNumber";
-                    var uniqueTypes = connection.Query<string>(typeQuery, new { SerialNumber = serialNumber }).AsList();
+                // Получаем список уникальных моделей
+                string modelQuery = "SELECT DISTINCT Model FROM Sensor WHERE SerialNumber = @SerialNumber";
+                var uniqueModels = connection.Query<string>(modelQuery, new { SerialNumber = serialNumber }).AsList();
 
-                    return (sensorList, uniqueTypes, uniqueModels);
-                }
+                // Получаем список уникальных типов
+                string typeQuery = "SELECT DISTINCT Type FROM Sensor WHERE SerialNumber = @SerialNumber";
+                var uniqueTypes = connection.Query<string>(typeQuery, new { SerialNumber = serialNumber }).AsList();
+
+                return (sensorList, uniqueTypes, uniqueModels);
             }
             catch
             {
@@ -152,60 +158,59 @@ namespace SensorFilter
         }
 
         // Получаем характеризацию
-        public List<SensorData> GetCharacterisationDataBySerialNumber(string serialNumber, string model)
+        public List<SensorCharacterisation> GetCharacterisationData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 // Получаем все данные по серийному номеру
-                string query = "SELECT * FROM SensorData WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                return connection.Query<SensorData>(query, new { SerialNumber = serialNumber, Model = model }).AsList();
+                string query = "SELECT * FROM SensorCharacterisation WHERE SensorId = @SensorId";
+                return connection.Query<SensorCharacterisation>(query, new { SensorId = sensorId }).AsList();
             }
         }
 
         //
-        public List<SensorVerification> GetVerificationDataBySerialNumber(string serialNumber, string model)
+        public List<SensorVerification> GetVerificationData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
-                string query = "SELECT * FROM SensorVerification WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                return connection.Query<SensorVerification>(query, new { SerialNumber = serialNumber, Model = model }).AsList();
+                string query = "SELECT * FROM SensorVerification WHERE SensorId = @SensorId";
+                return connection.Query<SensorVerification>(query, new { SensorId = sensorId }).AsList();
             }
         }
 
-        public List<SensorCoefficients> GetCoefficientsDataBySerialNumber(string serialNumber, string model)
+        public List<SensorCoefficients> GetCoefficientsData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 // Запрос для получения всех данных по конкретному SerialNumber
-                string query = "SELECT * FROM SensorCoefficients WHERE SerialNumber = @SerialNumber AND Model = @Model";
+                string query = "SELECT * FROM SensorCoefficients WHERE SensorId = @SensorId";
 
-                return connection.Query<SensorCoefficients>(query, new { SerialNumber = serialNumber, Model = model }).AsList();
+                return connection.Query<SensorCoefficients>(query, new { SensorId = sensorId }).AsList();
             }
         }
 
-        public Sensor GetSensorTypeBySerialNumber(string serialNumber, string model)
+        public (string SerialNumber, string Type, string Model)? GetSensorInfo(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
-                // SQL-запрос для получения данных о датчике по его ID
-                string query = "SELECT * FROM Sensor WHERE SerialNumber = @SerialNumber AND Model = @Model";
+                string query = "SELECT SerialNumber, Type, Model FROM Sensor WHERE SensorId = @SensorId";
 
-                return connection.QueryFirstOrDefault<Sensor>(query, new { SerialNumber = serialNumber, Model = model });
+                return connection.QueryFirstOrDefault<(string SerialNumber, string Type, string Model)> (query, new { SensorId = sensorId });
             }
         }
 
-        public async Task<Dictionary<DateTime, List<SensorCoefficients>>> GetCoefficientsBySerialNumber(string serialNumber, string model)
+        public async Task<Dictionary<DateTime, List<SensorCoefficients>>> GetCoefficients(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 await connection.OpenAsync();
                 string query = @"
                 SELECT CoefficientIndex, CoefficientValue, CoefficientsDate 
                 FROM SensorCoefficients 
-                WHERE SerialNumber = @SerialNumber AND Model = @Model
+                WHERE SensorId = @SensorId
                 ORDER BY CoefficientsDate, CoefficientIndex";
 
-                var result = await connection.QueryAsync<SensorCoefficients>(query, new { SerialNumber = serialNumber, Model = model });
+                var result = await connection.QueryAsync<SensorCoefficients>(query, new { SensorId = sensorId });
 
                 // Группируем по дате
                 return result
@@ -214,9 +219,9 @@ namespace SensorFilter
             }
         }
 
-        public async Task<List<SensorCoefficients>> ExportCoefficientsBySerialNumber(string serialNumber)
+        /*public async Task<List<SensorCoefficients>> ExportCoefficientsBySerialNumber(string serialNumber)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 await connection.OpenAsync();
                 string query = @"
@@ -228,14 +233,13 @@ namespace SensorFilter
                 var coefficients = await connection.QueryAsync<SensorCoefficients>(query, new { SerialNumber = serialNumber });
                 return coefficients.ToList();
             }
-        }
+        }*/
 
-        public int InsertSensorData(
-            int channel,
-            string serialNumber,
-            string type,
-            string model,
-            SQLiteConnection connection)
+        public static int InsertSensorInfo(
+            string              serialNumber,
+            string              type,
+            string              model,
+            SQLiteConnection    connection)
         {
             // Проверка на наличие записи с таким серийным номером и моделью
             string checkQuery = @"
@@ -245,8 +249,8 @@ namespace SensorFilter
             using (var checkCommand = new SQLiteCommand(checkQuery, connection))
             {
                 checkCommand.Parameters.AddWithValue("@serialNumber",   serialNumber);
-                checkCommand.Parameters.AddWithValue("@model",          model);
-                checkCommand.Parameters.AddWithValue("@type",           type);
+                checkCommand.Parameters.AddWithValue("@model",          model       );
+                checkCommand.Parameters.AddWithValue("@type",           type        );
 
                 var existingId = checkCommand.ExecuteScalar();
 
@@ -256,30 +260,28 @@ namespace SensorFilter
             
             // Если записи нет, вставляем новый датчик
             string insertQuery = @"
-            INSERT INTO Sensor (Channel, SerialNumber, Type, Model)
-            VALUES (@channel, @serialNumber, @type, @model); 
+            INSERT INTO Sensor (SerialNumber, Type, Model)
+            VALUES (@serialNumber, @type, @model); 
             SELECT last_insert_rowid();";
 
             using (var insertCommand = new SQLiteCommand(insertQuery, connection))
             {
-                insertCommand.Parameters.AddWithValue("@channel",       channel);
                 insertCommand.Parameters.AddWithValue("@serialNumber",  serialNumber);
-                insertCommand.Parameters.AddWithValue("@type",          type);
-                insertCommand.Parameters.AddWithValue("@model",         model);
+                insertCommand.Parameters.AddWithValue("@type",          type        );
+                insertCommand.Parameters.AddWithValue("@model",         model       );
 
                 return Convert.ToInt32(insertCommand.ExecuteScalar()); // Получаем ID вставленного датчика
             }
         }
 
-        public void InsertSensorDataBulk(IEnumerable<SensorData> sensorDataList, SQLiteConnection connection)
+        public void InsertSensorCharacterisationBulk(IEnumerable<SensorCharacterisation> sensorCharacterisationList, SQLiteConnection connection)
         {
             using (var transaction = connection.BeginTransaction())
             {
                 var command = connection.CreateCommand();
                 command.CommandText = @"
-                INSERT INTO SensorData 
-                (SerialNumber, 
-                Model, 
+                INSERT INTO SensorCharacterisation 
+                (SensorId, 
                 DateTime, 
                 Temperature, 
                 Range, 
@@ -288,28 +290,26 @@ namespace SensorFilter
                 Resistance, 
                 Deviation) 
                 VALUES 
-                (@serialNumber, 
-                    @model, 
+                (   @sensorId, 
                     @dateTime, 
                     @temperature, 
                     @range, 
                     @pressure, 
                     @voltage, 
                     @resistance, 
-                @deviation)";
+                    @deviation)";
 
-                foreach (var characterisation in sensorDataList)
+                foreach (var characterisation in sensorCharacterisationList)
                 {
                     command.Parameters.Clear(); // Очистка параметров для следующей вставки
-                    command.Parameters.AddWithValue("@serialNumber",    characterisation.SerialNumber);
-                    command.Parameters.AddWithValue("@model",           characterisation.Model);
-                    command.Parameters.AddWithValue("@dateTime",        characterisation.DateTime);
-                    command.Parameters.AddWithValue("@temperature",     characterisation.Temperature);
-                    command.Parameters.AddWithValue("@range",           characterisation.Range);
-                    command.Parameters.AddWithValue("@pressure",        characterisation.Pressure);
-                    command.Parameters.AddWithValue("@voltage",         characterisation.Voltage);
-                    command.Parameters.AddWithValue("@resistance",      characterisation.Resistance);
-                    command.Parameters.AddWithValue("@deviation",       characterisation.Deviation);
+                    command.Parameters.AddWithValue("@sensorId",    characterisation.SensorId   );
+                    command.Parameters.AddWithValue("@dateTime",    characterisation.DateTime   );
+                    command.Parameters.AddWithValue("@temperature", characterisation.Temperature);
+                    command.Parameters.AddWithValue("@range",       characterisation.Range      );
+                    command.Parameters.AddWithValue("@pressure",    characterisation.Pressure   );
+                    command.Parameters.AddWithValue("@voltage",     characterisation.Voltage    );
+                    command.Parameters.AddWithValue("@resistance",  characterisation.Resistance );
+                    command.Parameters.AddWithValue("@deviation",   characterisation.Deviation  );
                     command.ExecuteNonQuery();
                 }
 
@@ -317,10 +317,8 @@ namespace SensorFilter
                 update.CommandText = @"
                 UPDATE  Sensor
                 SET     HasCharacterisation = '1'
-                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
-                update.Parameters.AddWithValue("@serialNumber", sensorDataList.First().SerialNumber);
-                update.Parameters.AddWithValue("@model",        sensorDataList.First().Model);
-                update.Parameters.AddWithValue("@type",         sensorDataList.First().Type);
+                WHERE   SensorId = @sensorId";
+                update.Parameters.AddWithValue("@sensorId", sensorCharacterisationList.First().SensorId );
                 update.ExecuteNonQuery();
 
                 transaction.Commit(); // Коммитим транзакцию для групповой вставки
@@ -334,24 +332,21 @@ namespace SensorFilter
                 var command = connection.CreateCommand();
                 command.CommandText = @"
                 INSERT INTO SensorCoefficients 
-                (SerialNumber,
-                Model, 
+                (
+                SensorId,
                 CoefficientIndex, 
                 CoefficientValue,
                 CoefficientsDate) 
                 VALUES 
-                (@serialNumber,
-                    @model,
+                (   @sensorId,
                     @coefficientIndex, 
                     @coefficientValue,
-                @coefficientsDate)";
+                    @coefficientsDate)";
 
                 foreach (var coefficient in sensorCoefficientList)
                 {
                     command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@serialNumber",        coefficient.SerialNumber);
-                    command.Parameters.AddWithValue("@type",                coefficient.Type);
-                    command.Parameters.AddWithValue("@model",               coefficient.Model);
+                    command.Parameters.AddWithValue("@sensorId",            coefficient.SensorId        );       
                     command.Parameters.AddWithValue("@coefficientIndex",    coefficient.CoefficientIndex);
                     command.Parameters.AddWithValue("@coefficientValue",    coefficient.CoefficientValue);
                     command.Parameters.AddWithValue("@coefficientsDate",    coefficient.CoefficientsDate);
@@ -362,10 +357,8 @@ namespace SensorFilter
                 update.CommandText = @"
                 UPDATE  Sensor
                 SET     HasCoefficients = '1'
-                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
-                update.Parameters.AddWithValue("@serialNumber", sensorCoefficientList.First().SerialNumber);
-                update.Parameters.AddWithValue("@model",        sensorCoefficientList.First().Model);
-                update.Parameters.AddWithValue("@type",         sensorCoefficientList.First().Type);
+                WHERE   SensorId = @sensorId";
+                update.Parameters.AddWithValue("@sensorId", sensorCoefficientList.First().SensorId);
                 update.ExecuteNonQuery();
 
                 transaction.Commit();
@@ -379,8 +372,8 @@ namespace SensorFilter
                 var command = connection.CreateCommand();
                 command.CommandText = @"
                 INSERT INTO SensorVerification 
-                (SerialNumber, 
-                Model,      
+                (
+                SensorId,
                 DateTime,   
                 Temperature,    
                 NPI, 
@@ -392,8 +385,7 @@ namespace SensorFilter
                 Voltage, 
                 Resistance) 
                 VALUES 
-                (@serialNumber, 
-                    @model, 
+                (   @sensorId,
                     @dateTime, 
                     @temperature, 
                     @npi, 
@@ -403,13 +395,12 @@ namespace SensorFilter
                     @currentGiven, 
                     @currentReal, 
                     @voltage, 
-                @resistance)";
+                    @resistance)";
 
                 foreach (var verificationData in verificationDataList)
                 {
                     command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@serialNumber",    verificationData.SerialNumber   );
-                    command.Parameters.AddWithValue("@model",           verificationData.Model          );
+                    command.Parameters.AddWithValue("@sensorId",        verificationData.SensorId       );
                     command.Parameters.AddWithValue("@dateTime",        verificationData.DateTime       );
                     command.Parameters.AddWithValue("@temperature",     verificationData.Temperature    );
                     command.Parameters.AddWithValue("@npi",             verificationData.NPI            );
@@ -427,85 +418,76 @@ namespace SensorFilter
                 update.CommandText = @"
                 UPDATE  Sensor
                 SET     HasVerification = '1'
-                WHERE   SerialNumber = @serialNumber AND Model = @model AND Type = @type";
-                update.Parameters.AddWithValue("@serialNumber", verificationDataList.First().SerialNumber   );
-                update.Parameters.AddWithValue("@model",        verificationDataList.First().Model          );
-                update.Parameters.AddWithValue("@type",         verificationDataList.First().Type           );
+                WHERE   SensorId = @sensorId";
+                update.Parameters.AddWithValue("@sensorId", verificationDataList.First().SensorId);
                 update.ExecuteNonQuery();
 
                 transaction.Commit();
             }
         }
 
-        public bool CheckCharacterisationExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        public bool CheckCharacterisationExists(int sensorId, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
             FROM Sensor
-            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasCharacterisation = 1";
+            WHERE SensorId = @sensorId AND HasCharacterisation = 1";
 
             using (var command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@type",            type        );
-                command.Parameters.AddWithValue("@model",           model       );
+                command.Parameters.AddWithValue("@sensorId", sensorId);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
-        public bool CheckCharacterisationStringExists(
-            string serialNumber, 
-            string dateTime, 
-            SQLiteConnection connection)
+        public bool CheckCharacterisationStringExists(int sensorId, string dateTime, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*)
-            FROM SensorData
-            WHERE SerialNumber  = @serialNumber 
-            AND DateTime        = @dateTime";
+            FROM SensorCharacterisation
+            WHERE SensorId = @sensorId
+            AND DateTime   = @dateTime";
 
             using (var command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@dateTime",        dateTime    );
+                command.Parameters.AddWithValue("@sensorId", sensorId);
+                command.Parameters.AddWithValue("@dateTime", dateTime);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
-        public bool CheckCoefficientExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        public bool CheckCoefficientExists(int sensorId, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
             FROM Sensor
-            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasCoefficients = 1"; ;
+            WHERE SensorId = @sensorId AND HasCoefficients = 1"; ;
 
             using (var command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@type",            type        );
-                command.Parameters.AddWithValue("@model",           model       );
+                command.Parameters.AddWithValue("@sensorId", sensorId);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
-        public bool CheckCoefficientStringExists(string serialNumber, string coefficientIndex, string coefficientsDate, SQLiteConnection connection)
+        public bool CheckCoefficientStringExists(int sensorId, string coefficientIndex, string coefficientsDate, SQLiteConnection connection)
         {
             string query = @"
             SELECT  COUNT(*)
             FROM    SensorCoefficients
-            WHERE   SerialNumber        = @serialNumber 
+            WHERE   SensorId            = @sensorId
             AND     CoefficientIndex    = @coefficientIndex 
-            AND     CoefficientsDate    = ""@CoefficientsDate""";
+            AND     CoefficientsDate    = @CoefficientsDate";
 
             using (var command = new SQLiteCommand (query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",        serialNumber    );
+                command.Parameters.AddWithValue("@sensorId",            sensorId        );
                 command.Parameters.AddWithValue("@coefficientIndex",    coefficientIndex);
                 command.Parameters.AddWithValue("@CoefficientsDate",    coefficientsDate);
 
@@ -514,63 +496,58 @@ namespace SensorFilter
             }
         }
 
-        public bool CheckVerificationExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        public bool CheckVerificationExists(int sensorId, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
             FROM Sensor
-            WHERE SerialNumber = @serialNumber AND Type = @type AND Model = @model AND HasVerification = 1";
+            WHERE SensorId = @sensorId AND HasVerification = 1";
 
             using (var command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@type",            type    );
-                command.Parameters.AddWithValue("@model",           model       );
+                command.Parameters.AddWithValue("@sensorId", sensorId);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
-        public bool CheckVerificationStringExists(
-            string serialNumber, 
-            string model, 
-            string dateTime, 
-            SQLiteConnection connection)
+        public bool CheckVerificationStringExists(int sensorId, string model, string dateTime, SQLiteConnection connection)
         {
             string query = @"
             SELECT  COUNT(*) 
             FROM    SensorVerification
-            WHERE   SerialNumber    = @serialNumber 
-            AND     Model           = @model
-            AND     DateTime        = @dateTime";
+            WHERE   SensorId    = @sensorId
+            AND     Model       = @model
+            AND     DateTime    = @dateTime";
 
             using (var command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@serialNumber",    serialNumber);
-                command.Parameters.AddWithValue("@model",           model       );
-                command.Parameters.AddWithValue("@dateTime",        dateTime    );
+                command.Parameters.AddWithValue("@sensorId",    sensorId);
+                command.Parameters.AddWithValue("@model",       model   );
+                command.Parameters.AddWithValue("@dateTime",    dateTime);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
             }
         }
 
+        // Возвращаем серийные номера для выпадающего списка
         public List<string> SelectSerials(string selectedDate, string selectedType, string selectedModel)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 // Парсинг даты с выжимкой месяца и года
                 DateTime date = DateTime.Parse(selectedDate);
                 string selectedYearMonth = date.ToString("yyyy-MM");
 
-                // Запрос на получение серийников
+                // Обновленный запрос для получения серийных номеров
                 string query = @"
-                SELECT DISTINCT s.SerialNumber 
+                SELECT DISTINCT s.SerialNumber
                 FROM Sensor s
-                JOIN SensorData sd ON s.SerialNumber = sd.SerialNumber
-                WHERE strftime('%Y-%m', sd.DateTime) = @SelectedYearMonth
-                AND s.Type = @SelectedType
+                JOIN SensorCharacterisation sc ON s.SensorId = sc.SensorId
+                WHERE strftime('%Y-%m', sc.DateTime) = @SelectedYearMonth
+                AND s.Type  = @SelectedType
                 AND s.Model = @SelectedModel";
 
                 // Исполнение запроса и возврат серийников
@@ -583,114 +560,96 @@ namespace SensorFilter
             }
         }
 
-        public void DeleteSensorData(List<int> dataIds)
+        public void DeleteSensorCharacterisationData(List<int> characterisationIds)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM SensorData WHERE DataId IN @Ids";
-                connection.Execute(query, new { Ids = dataIds });
+                string query = "DELETE FROM SensorCharacterisation WHERE CharacterisationId IN @Ids";
+                connection.Execute(query, new { Ids = characterisationIds });
             }
         }
 
         public void DeleteVerificationData(List<int> verificationIds)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM SensorVerification WHERE Id IN @Ids";
+                string query = "DELETE FROM SensorVerification WHERE VerificationId IN @Ids";
                 connection.Execute(query, new { Ids = verificationIds });
             }
         }
 
         public void DeleteCoefficientData(List<int> coefficientIds)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM SensorCoefficients WHERE Id IN @Ids";
+                string query = "DELETE FROM SensorCoefficients WHERE CoefficientId IN @Ids";
                 connection.Execute(query, new { Ids = coefficientIds });
             }
         }
 
-        public bool HasSensorRelatedData(string serialNumber, string model)
+        public bool HasSensorRelatedData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
 
-                // Проверяем наличие данных в SensorData
-                string sensorDataQuery = "SELECT COUNT(*) FROM SensorData WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                long sensorDataCount = connection.ExecuteScalar<long>(sensorDataQuery, new { SerialNumber = serialNumber, Model = model });
+                // Проверяем наличие данных в SensorVerification
+                string  sensorDataQuery     = "SELECT COUNT(*) FROM SensorCharacterisation WHERE SensorId = @SensorId";
+                long    sensorDataCount     = connection.ExecuteScalar<long>(sensorDataQuery,   new { SensorId = sensorId });
 
                 // Проверяем наличие данных в SensorVerification
-                string verificationQuery = "SELECT COUNT(*) FROM SensorVerification WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                long verificationCount = connection.ExecuteScalar<long>(verificationQuery, new { SerialNumber = serialNumber, Model = model });
+                string  verificationQuery   = "SELECT COUNT(*) FROM SensorVerification WHERE SensorId = @SensorId";
+                long    verificationCount   = connection.ExecuteScalar<long>(verificationQuery, new { SensorId = sensorId });
 
                 // Проверяем наличие данных в SensorCoefficients
-                string coefficientQuery = "SELECT COUNT(*) FROM SensorCoefficients WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                long coefficientCount = connection.ExecuteScalar<long>(coefficientQuery, new { SerialNumber = serialNumber, Model = model });
+                string  coefficientQuery    = "SELECT COUNT(*) FROM SensorCoefficients WHERE SensorId = @SensorId";
+                long    coefficientCount    = connection.ExecuteScalar<long>(coefficientQuery,  new { SensorId = sensorId });
 
                 return sensorDataCount > 0 || verificationCount > 0 || coefficientCount > 0;
             }
         }
 
-        public bool SensorExists(string serialNumber, string type, string model, SQLiteConnection connection)
+        public void DeleteCharacterisationData(int sensorId)
         {
-            string query = @"
-            SELECT COUNT(*)
-            FROM Sensor
-            WHERE SerialNumber = @SerialNumber AND Type = @Type AND Model = @Model";
-
-            using (var command = new SQLiteCommand(query, connection))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
-                command.Parameters.AddWithValue("@SerialNumber", serialNumber);
-                command.Parameters.AddWithValue("@Type", type);
-                command.Parameters.AddWithValue("@Model", model);
-
-                long count = (long)command.ExecuteScalar();
-                return count > 0; // Если count > 0, датчик уже существует
+                connection.Open();
+                string query = "DELETE FROM SensorCharacterisation WHERE SensorId = @SensorId";
+                connection.Execute(query, new { SensorId = sensorId });
             }
         }
 
-        public void DeleteSensorDataBySerialNumber(string serialNumber, string model)
+        public void DeleteVerificationData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM SensorData WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                connection.Execute(query, new { SerialNumber = serialNumber, Model = model });
+                string query = "DELETE FROM SensorVerification WHERE SensorId = @SensorId";
+                connection.Execute(query, new { SensorId = sensorId });
             }
         }
 
-        public void DeleteVerificationDataBySerialNumber(string serialNumber, string model)
+        public void DeleteCoefficientData(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM SensorVerification WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                connection.Execute(query, new { SerialNumber = serialNumber, Model = model });
-            }
-        }
-
-        public void DeleteCoefficientDataBySerialNumber(string serialNumber, string model)
-        {
-            using (var connection = new SQLiteConnection(GetConnStr()))
-            {
-                connection.Open();
-                string query = "DELETE FROM SensorCoefficients WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                connection.Execute(query, new { SerialNumber = serialNumber, Model = model });
+                string query = "DELETE FROM SensorCoefficients WHERE SensorId = @SensorId";
+                connection.Execute(query, new { SensorId = sensorId });
             }
         }
 
         // Метод для удаления датчика
-        public void DeleteSensor(string serialNumber, string model)
+        public void DeleteSensor(int sensorId)
         {
-            using (var connection = new SQLiteConnection(GetConnStr()))
+            using (var connection = new SQLiteConnection(ConnStr))
             {
                 connection.Open();
-                string query = "DELETE FROM Sensor WHERE SerialNumber = @SerialNumber AND Model = @Model";
-                connection.Execute(query, new { SerialNumber = serialNumber, Model = model });
+                string query = "DELETE FROM Sensor WHERE SensorId = @SensorId";
+                connection.Execute(query, new { SensorId = sensorId });
             }
         }
     }

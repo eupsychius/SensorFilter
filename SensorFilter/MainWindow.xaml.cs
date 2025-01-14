@@ -76,11 +76,11 @@ namespace SensorFilter
         {
             settings = new SettingsWindow(adminRightsEnabled);
 
-            settings.Left   = Left  + 20;
-            settings.Top    = Top   + 20;
+            settings.Left   = Left  + 30;
+            settings.Top    = Top   + 30;
 
-            settings.Height = 361;
-            if (!adminRightsEnabled) settings.Height = 198;
+            settings.Height = 319;
+            if (!adminRightsEnabled) settings.Height = 172;
 
             settings.Owner = this;
             settings.ShowDialog();
@@ -122,7 +122,7 @@ namespace SensorFilter
         // Меню док - закрытие программы
         private void CloseApp(object sender, RoutedEventArgs e) => Close();
 
-        // Выбираем из списка серийников нужный номер
+        // Выбираем из списка серийников нужный датчик
         private void SortedByDateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SortedByDateComboBox.SelectedItem != null)
@@ -133,7 +133,9 @@ namespace SensorFilter
                     {
                         // Создаем запросы на основе исходных данных
                         string selectedSerialNumber = SortedByDateComboBox.SelectedItem.ToString();
-                        CreateTable(selectedSerialNumber, selectedModel);
+
+                        int sensorId = DatabaseHelper.GetSensorId(selectedSerialNumber, selectedType, selectedModel) ?? -1;
+                        CreateTable(sensorId, selectedModel);
 
                         ShowSerialsIfPossible();
                     }
@@ -172,8 +174,7 @@ namespace SensorFilter
             {
                 string serialNumberText = SortBySerialIdTextBox.Text;
 
-                if (!string.IsNullOrWhiteSpace(serialNumberText))
-                    TrySerialNumber();
+                if (!string.IsNullOrWhiteSpace(serialNumberText)) TrySerialNumber();
 
                 else
                     MessageBox.Show(
@@ -203,12 +204,12 @@ namespace SensorFilter
 
         // Формируем таблицу по серийнику и модели датчика
         private FilteredTable filteredTable;
-        private void CreateTable(string serialNumber, string model)
+        private void CreateTable(int sensorId, string model)
         {
             if (filteredTable == null || !filteredTable.IsVisible)
             {
-                filteredTable = new FilteredTable(adminRightsEnabled);
-                filteredTable.FilterBySerialNumber(serialNumber, model);
+                filteredTable = new FilteredTable(adminRightsEnabled, sensorId);
+                filteredTable.FilterBySerialNumber(sensorId);
                 filteredTable.Closed += (s, args) => filteredTable = null;
                 filteredTable.ShowDialog();
             }
@@ -242,37 +243,40 @@ namespace SensorFilter
         // Пробуем прописанный серийник на совпадение в ДБ
         private void TrySerialNumber()
         {
-            string serialNumberText = SortBySerialIdTextBox.Text;
+            string serialNumberString = SortBySerialIdTextBox.Text;
 
             if (GetDbPath().Contains(".db") && File.Exists(GetDbPath()))
             {
-                if (!(serialNumberText.Contains('(') || serialNumberText.Contains(')')))
+                if (!(serialNumberString.Contains('(') || serialNumberString.Contains(')')))
                 {
-                    if (int.TryParse(serialNumberText, out int serialNumber))
+                    if (int.TryParse(serialNumberString, out int serialNumber))
                     {
-                        if (serialNumber > 16777215)
-                        {
-                            serialNumberText    = serialNumberText.Remove(0, 1);
-                            serialNumber        = Convert.ToInt32(serialNumberText);
-                        }
+                        if (serialNumber > 16777215) serialNumberString  = serialNumberString.Remove(0, 1);
 
                         // Получаем данные и количество уникальных моделей
-                        var (sensor, uniqueTypes, uniqueModels) = databaseHelper.GetSensorBySerialNumber(serialNumberText);
+                        var (sensor, uniqueTypes, uniqueModels) = DatabaseHelper.GetSensorBySerialNumber(serialNumberString);
 
                         if (sensor != null && sensor.Count > 0)
                         {
                             // Если уникальная модель одна, вызываем CreateTable напрямую
-                            if (uniqueModels.Count == 1) CreateTable(serialNumberText, uniqueModels[0]); // Передаем единственную модель
+                            if (uniqueModels.Count == 1) 
+                            {
+                                int sensorId = DatabaseHelper.GetSensorId(serialNumberString, selectedType, selectedModel) ?? -1;
+                                CreateTable(sensorId, uniqueModels[0]); // Передаем единственную модель
+                            } 
                             else if (uniqueModels.Count > 1)
                             {
                                 // Открываем диалоговое окно для выбора модели
-                                SelectModelWindow selectModelWindow = new SelectModelWindow(sensor);
+                                SelectModelWindow selectModelWindow = new(sensor);
                                 if (selectModelWindow.ShowDialog() == true)
                                 {
                                     // Получаем выбранную модель из окна
-                                    string selectedModel = selectModelWindow.SelectedModel;
+                                    string selectedModel    = selectModelWindow.SelectedModel;
+                                    string selectedType     = selectModelWindow.SelectedType;
 
-                                    try { CreateTable(serialNumberText, selectedModel); /* Передаем выбранную модель */ }
+                                    int sensorId = DatabaseHelper.GetSensorId(serialNumberString, selectedType, selectedModel) ?? -1;
+
+                                    try { CreateTable(sensorId, selectedModel); /* Передаем выбранную модель */ }
                                     catch { MessageBox.Show(
                                             "Возникла ошибка при связи с базой данных",
                                             "Ошибка",

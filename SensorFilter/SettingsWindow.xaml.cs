@@ -417,12 +417,12 @@ namespace SensorFilter
 
                         string found    = "Обнаружено";
                         string file     = "файлов";
-                        if (newFilesFound.Count() % 10 == 1 &&
-                            newFilesFound.Count() % 100 != 11)  {   found = "Обнаружен"; file = "файл"; }   //  1;      21;     31
+                        if (newFilesFound.Count() % 10  ==  1   &&
+                            newFilesFound.Count() % 100 !=  11  )  { found = "Обнаружен"; file = "файл"; }  //  1;      21;     31
                         if (newFilesFound.Count() % 10  >=  2   &&
                             newFilesFound.Count() % 10  <=  4   && (
                             newFilesFound.Count() % 100 <   10  ||
-                            newFilesFound.Count() % 100 >=  20  ))  file = "файла";                         //  2-4;    22-24;  32-34
+                            newFilesFound.Count() % 100 >=  20  )) file = "файла";                          //  2-4;    22-24;  32-34
 
                             MessageBoxResult result = MessageBox.Show(
                             $"{found} {newFilesFound.Count()} {file} для синхронизации\n" +
