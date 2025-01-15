@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Text;
 
 namespace SensorFilter
 {
@@ -22,18 +23,18 @@ namespace SensorFilter
             string  sensorInfo      = lines[1];
             var     sensorDetails   = sensorInfo.Split(';');
 
-            string  serialNumber    =                               sensorDetails[1].Split(':')[1].Trim();
-            string  type            = sensorDetails.Length > 2 ?    sensorDetails[2].Split(':')[1].Trim() : "-";
-            string  model           = sensorDetails.Length > 3 ?    sensorDetails[3].Split(':')[1].Trim() : "-";
+            string  serialNumber    =                                           sensorDetails[1].Split(':')[1].Trim();
+            string  type            = DecodeString(sensorDetails.Length > 2 ?   sensorDetails[2].Split(':')[1].Trim() : "-");
+            string  model           = DecodeString(sensorDetails.Length > 3 ?   sensorDetails[3].Split(':')[1].Trim() : "-");
 
             if (type == "-" || model == "-") ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит неполные сведения о датчике");
+
+            type = VerifyTypeAndModel(type, model, fileName);
 
             using (var connection = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
             {
                 connection.Open();
                 int sensorId = DatabaseHelper.InsertSensorInfo(serialNumber, type, model, connection);
-
-                if (databaseHelper.CheckCharacterisationExists(sensorId, connection)) fileDupe = 1;
 
                 var sensorCharacterisationList  = new List<SensorCharacterisation>();
                 var sensorCoefficientList       = new List<SensorCoefficients>();
@@ -66,12 +67,6 @@ namespace SensorFilter
                         try {       deviation   =   double.     Parse(data[6].Trim()); }
                         catch {     deviation   =   0.0; }
 
-                        if (databaseHelper.CheckCharacterisationStringExists(sensorId, dateTime.ToString("yyyy-MM-dd HH:mm:ss"), connection))
-                        if (fileDupe == 1) if (databaseHelper.CheckCharacterisationStringExists(
-                                sensorId, 
-                                dateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                connection)) fileDupe = 2;
-
                         sensorCharacterisationList.Add(new SensorCharacterisation
                         {
                             SensorId    = sensorId,
@@ -94,9 +89,6 @@ namespace SensorFilter
                         int     coefficientIndex = int.     Parse(coefficientData[0].Trim());
                         double  coefficientValue = double.  Parse(coefficientData[1].Trim());
 
-                        if (databaseHelper.CheckCoefficientStringExists(sensorId, coefficientIndex.ToString(), date.ToString("yyyy-MM-dd HH:mm:ss"), connection))
-                            fileDupe = 2;
-
                         sensorCoefficientList.Add(new SensorCoefficients
                         {
                             SensorId            = sensorId,
@@ -107,23 +99,22 @@ namespace SensorFilter
                     }
                 }
 
+                try
+                {
+                    if (databaseHelper.CheckCharacterisationExists(sensorId, connection)) fileDupe = 1;
+                    fileDupe = databaseHelper.InsertSensorCharacterisationBulk(sensorCharacterisationList, connection, fileDupe != 0);
+                    if (sensorCoefficientList.Count > 0)
+                    {
+                        if (databaseHelper.CheckCoefficientExists(sensorId, connection)) fileDupe = 1;
+                        fileDupe = databaseHelper.InsertSensorCoefficientsBulk(sensorCoefficientList, connection, fileDupe != 0);
+                    }
+                    
+                }
+                catch (Exception ex) { ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message); }
+
                 // Если словили дублирующуюся строку, то сведения не заносятся
                 if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит дубликаты строк");
-                else
-                {
-                    if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Часть данных уже есть в базе данных");
-
-                    try
-                    {
-                        databaseHelper.InsertSensorCharacterisationBulk(sensorCharacterisationList, connection);
-                        if (sensorCoefficientList.Count > 0)
-                            databaseHelper.InsertSensorCoefficientsBulk(sensorCoefficientList, connection);
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message);
-                    }
-                }
+                else if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Часть данных уже есть в базе данных");
             }
 
             // Для возврата количества дубликатов
@@ -144,22 +135,14 @@ namespace SensorFilter
             string  sensorInfo      = lines[1];
             var     sensorDetails   = sensorInfo.Split(';');
 
-            string  serialNumber    =                               sensorDetails[1].Split(':')[1].Trim();
-            string  type            = sensorDetails.Length > 2 ?    sensorDetails[2].Split(':')[1].Trim() : "-";
-            string  model           = sensorDetails.Length > 3 ?    sensorDetails[3].Split(':')[1].Trim() : "-";
+            string  serialNumber    =                                           sensorDetails[1].Split(':')[1].Trim();
+            string  type            = DecodeString(sensorDetails.Length > 2 ?   sensorDetails[2].Split(':')[1].Trim() : "-");
+            string  model           = DecodeString(sensorDetails.Length > 3 ?   sensorDetails[3].Split(':')[1].Trim() : "-");
 
             if (type == "-" || model == "-") ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит неполные сведения о датчике");
 
             // Конвертим нестандартную модель в общую
-            if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100"))   type = "ЭнИ-100";
-            if (type == "ЭНИ-12")                                       type = "ЭнИ-12";
-            if (type == "ЭНИ-12М")                                      type = "ЭнИ-12М";
-
-            if (model != "-" &&
-                ((( type == "ЭнИ-100"   ) && !sensorModels.EnI100_Models(). Contains(model)) ||
-                ((  type == "ЭнИ-12"    ) && !sensorModels.EnI12_Models().  Contains(model)) ||
-                ((  type == "ЭнИ-12М"   ) && !sensorModels.EnI12M_Models(). Contains(model)) ))
-                ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", $"Файл содержит нестандартную модель - {model} ({type})");
+            type = VerifyTypeAndModel(type, model, fileName);
 
             using (SQLiteConnection connection = new($"Data Source={dbPath};Version=3;"))
             {
@@ -176,7 +159,7 @@ namespace SensorFilter
                 int sensorId = DatabaseHelper.InsertSensorInfo(serialNumber, type, model, connection);
 
                 // Проверяем наличие дубликатов по серийному номеру и дате
-                if (databaseHelper.CheckVerificationExists(sensorId, connection)) fileDupe = 1;
+                 if (databaseHelper.CheckVerificationExists(sensorId, connection)) fileDupe = 1;
 
                 // Парсим данные верификации, начиная с 5 строки
                 for (int line = 5; line < lines.Length; line++)
@@ -227,14 +210,6 @@ namespace SensorFilter
                         defectCurrentWarned = true;
                     }*/
 
-                    if (fileDupe == 1)
-                        if (databaseHelper.CheckVerificationStringExists(
-                            sensorId,
-                            model,
-                            dateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                            connection))
-                            fileDupe = 2;
-
                     verificationDataList.Add(new SensorVerification
                     {
                         SensorId        = sensorId,
@@ -251,26 +226,60 @@ namespace SensorFilter
                     });
                 }
 
+                // Вставляем все данные верификации пакетом
                 // Если словили дублирующуюся строку, то сведения не заносятся
-                if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл верификации содержит дубликаты строк");
-                else
+                try
                 {
-                    // Если некоторые сведения о характеризации имеются, то логируем предупреждение
-                    if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации уже есть в базе данных");
-
-                    // Вставляем все данные верификации пакетом
-                    try     
-                    { 
-                        databaseHelper.InsertVerificationDataBulk(verificationDataList, connection); 
-                    }
-                    catch (Exception ex)   
-                    { 
-                        ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message); 
-                    }
+                    fileDupe = databaseHelper.InsertVerificationBulk(verificationDataList, connection, fileDupe != 0);
                 }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message);
+                }
+                
+                if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл верификации содержит дубликаты строк");
+                else if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации уже есть в базе данных");
             }
 
             return fileDupe == 2;
+        }
+
+        private string VerifyTypeAndModel(string type, string model, string fileName)
+        {
+            // Конвертим нестандартную модель в общую
+            if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100"))   type = "ЭнИ-100";
+            if (type == "ЭНИ-12"    )                                   type = "ЭнИ-12";
+            if (type == "ЭНИ-12М"   )                                   type = "ЭнИ-12М";
+
+            if (model != "-" &&
+                ((( type == "ЭнИ-100"   ) && !sensorModels.EnI100_Models(). Contains(model)) ||
+                ((  type == "ЭнИ-12"    ) && !sensorModels.EnI12_Models().  Contains(model)) ||
+                ((  type == "ЭнИ-12М"   ) && !sensorModels.EnI12M_Models(). Contains(model)) ))
+                ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", $"Файл содержит нестандартную модель - {model} ({type})");
+
+            return type;
+        }
+
+        static string DecodeString(string rawData)
+        {
+            if (string.IsNullOrWhiteSpace(rawData) || rawData.Contains("\0"))
+            {
+                // Если модель содержит нулевые байты, обработать их
+                byte[] blobData = Encoding.UTF8.GetBytes(rawData);
+                // Попытка преобразования из blob
+                try
+                {
+                    string result = Encoding.UTF8.GetString(blobData).Trim('\0');
+                    if (result == "") result = "Ошибка";
+                    return result;
+                }
+                catch
+                {
+                    return "Unknown";
+                }
+            }
+
+            return rawData;
         }
     }
 }

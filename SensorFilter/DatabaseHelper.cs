@@ -123,9 +123,8 @@ namespace SensorFilter
         }
 
         /* Получаем модели и типы по серийному номеру
-         * Этот метод предполагает использование именно серийного номера для получения необходимых данных
-         */
-        public static (List<Sensor>, List<string>, List<string>) GetSensorBySerialNumber(string serialNumber)
+         * Этот метод предполагает использование именно серийного номера для получения необходимых данных*/
+        public static List<Sensor> GetSensorBySerialNumber(string serialNumber)
         {
             try
             {
@@ -135,15 +134,7 @@ namespace SensorFilter
                 string query = "SELECT * FROM Sensor WHERE SerialNumber = @SerialNumber";
                 var sensorList = connection.Query<Sensor>(query, new { SerialNumber = serialNumber }).AsList();
 
-                // Получаем список уникальных моделей
-                string modelQuery = "SELECT DISTINCT Model FROM Sensor WHERE SerialNumber = @SerialNumber";
-                var uniqueModels = connection.Query<string>(modelQuery, new { SerialNumber = serialNumber }).AsList();
-
-                // Получаем список уникальных типов
-                string typeQuery = "SELECT DISTINCT Type FROM Sensor WHERE SerialNumber = @SerialNumber";
-                var uniqueTypes = connection.Query<string>(typeQuery, new { SerialNumber = serialNumber }).AsList();
-
-                return (sensorList, uniqueTypes, uniqueModels);
+                return (sensorList);
             }
             catch
             {
@@ -153,7 +144,7 @@ namespace SensorFilter
                     "Ошибка",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                return (null, null, null);
+                return null;
             }
         }
 
@@ -274,12 +265,31 @@ namespace SensorFilter
             }
         }
 
-        public void InsertSensorCharacterisationBulk(IEnumerable<SensorCharacterisation> sensorCharacterisationList, SQLiteConnection connection)
+        public int InsertSensorCharacterisationBulk(
+            IEnumerable<SensorCharacterisation> sensorCharacterisationList,
+            SQLiteConnection                    connection,
+            bool                                needsDupeChecking)
         {
             using (var transaction = connection.BeginTransaction())
             {
-                var command = connection.CreateCommand();
-                command.CommandText = @"
+                bool duplicatesFound = false;
+
+                var checkCommand = connection.CreateCommand();
+                checkCommand.CommandText = @"
+                SELECT COUNT(*) 
+                FROM SensorCharacterisation 
+                WHERE
+                SensorId    = @sensorId     AND
+                DateTime    = @dateTime     AND 
+                Temperature = @temperature  AND 
+                Range       = @range        AND 
+                Pressure    = @pressure     AND 
+                Voltage     = @voltage      AND 
+                Resistance  = @resistance   AND 
+                Deviation   = @deviation";
+
+                var insertCommand = connection.CreateCommand();
+                insertCommand.CommandText = @"
                 INSERT INTO SensorCharacterisation 
                 (SensorId, 
                 DateTime, 
@@ -301,91 +311,173 @@ namespace SensorFilter
 
                 foreach (var characterisation in sensorCharacterisationList)
                 {
-                    command.Parameters.Clear(); // Очистка параметров для следующей вставки
-                    command.Parameters.AddWithValue("@sensorId",    characterisation.SensorId   );
-                    command.Parameters.AddWithValue("@dateTime",    characterisation.DateTime   );
-                    command.Parameters.AddWithValue("@temperature", characterisation.Temperature);
-                    command.Parameters.AddWithValue("@range",       characterisation.Range      );
-                    command.Parameters.AddWithValue("@pressure",    characterisation.Pressure   );
-                    command.Parameters.AddWithValue("@voltage",     characterisation.Voltage    );
-                    command.Parameters.AddWithValue("@resistance",  characterisation.Resistance );
-                    command.Parameters.AddWithValue("@deviation",   characterisation.Deviation  );
-                    command.ExecuteNonQuery();
+                    bool exists = false;
+
+                    if (needsDupeChecking)
+                    {
+                        checkCommand.Parameters.Clear();
+                        checkCommand.Parameters.AddWithValue("@sensorId",       characterisation.SensorId   );
+                        checkCommand.Parameters.AddWithValue("@dateTime",       characterisation.DateTime   );
+                        checkCommand.Parameters.AddWithValue("@temperature",    characterisation.Temperature);
+                        checkCommand.Parameters.AddWithValue("@range",          characterisation.Range      );
+                        checkCommand.Parameters.AddWithValue("@pressure",       characterisation.Pressure   );
+                        checkCommand.Parameters.AddWithValue("@voltage",        characterisation.Voltage    );
+                        checkCommand.Parameters.AddWithValue("@resistance",     characterisation.Resistance );
+                        checkCommand.Parameters.AddWithValue("@deviation",      characterisation.Deviation  );
+
+                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                        if (exists)
+                        {
+                            duplicatesFound = true;
+                            continue;
+                        }
+                    }
+
+                    insertCommand.Parameters.Clear();
+                    insertCommand.Parameters.AddWithValue("@sensorId",      characterisation.SensorId   );
+                    insertCommand.Parameters.AddWithValue("@dateTime",      characterisation.DateTime   );
+                    insertCommand.Parameters.AddWithValue("@temperature",   characterisation.Temperature);
+                    insertCommand.Parameters.AddWithValue("@range",         characterisation.Range      );
+                    insertCommand.Parameters.AddWithValue("@pressure",      characterisation.Pressure   );
+                    insertCommand.Parameters.AddWithValue("@voltage",       characterisation.Voltage    );
+                    insertCommand.Parameters.AddWithValue("@resistance",    characterisation.Resistance );
+                    insertCommand.Parameters.AddWithValue("@deviation",     characterisation.Deviation  );
+
+                    insertCommand.ExecuteNonQuery();
                 }
 
-                var update = connection.CreateCommand();
-                update.CommandText = @"
-                UPDATE  Sensor
-                SET     HasCharacterisation = '1'
-                WHERE   SensorId = @sensorId";
-                update.Parameters.AddWithValue("@sensorId", sensorCharacterisationList.First().SensorId );
-                update.ExecuteNonQuery();
+                var updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = @"
+                UPDATE Sensor
+                SET HasCharacterisation = '1'
+                WHERE SensorId = @sensorId";
+                updateCommand.Parameters.AddWithValue("@sensorId", sensorCharacterisationList.First().SensorId);
+                updateCommand.ExecuteNonQuery();
 
-                transaction.Commit(); // Коммитим транзакцию для групповой вставки
+                transaction.Commit();
+
+                return needsDupeChecking ? (duplicatesFound ? 2 : 1) : 0;
             }
         }
 
-        public void InsertSensorCoefficientsBulk(IEnumerable<SensorCoefficients> sensorCoefficientList, SQLiteConnection connection)
+
+        public int InsertSensorCoefficientsBulk(
+            IEnumerable<SensorCoefficients> sensorCoefficientList,
+            SQLiteConnection connection,
+            bool needsDupeChecking)
         {
             using (var transaction = connection.BeginTransaction())
             {
-                var command = connection.CreateCommand();
-                command.CommandText = @"
-                INSERT INTO SensorCoefficients 
-                (
-                SensorId,
-                CoefficientIndex, 
-                CoefficientValue,
+                bool duplicatesFound = false;
+
+                var checkCommand = connection.CreateCommand();
+                checkCommand.CommandText = @"
+                SELECT COUNT(*) 
+                FROM SensorCoefficients 
+                WHERE
+                SensorId          = @sensorId           AND
+                CoefficientIndex  = @coefficientIndex   AND
+                CoefficientValue  = @coefficientValue   AND
+                CoefficientsDate  = @coefficientsDate";
+
+                var insertCommand = connection.CreateCommand();
+                insertCommand.CommandText = @"
+                INSERT INTO SensorCoefficients
+                (SensorId,
+                CoefficientIndex,
+                CoefficientValue, 
                 CoefficientsDate) 
                 VALUES 
-                (   @sensorId,
+                (   @sensorId, 
                     @coefficientIndex, 
-                    @coefficientValue,
+                    @coefficientValue, 
                     @coefficientsDate)";
 
                 foreach (var coefficient in sensorCoefficientList)
                 {
-                    command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@sensorId",            coefficient.SensorId        );       
-                    command.Parameters.AddWithValue("@coefficientIndex",    coefficient.CoefficientIndex);
-                    command.Parameters.AddWithValue("@coefficientValue",    coefficient.CoefficientValue);
-                    command.Parameters.AddWithValue("@coefficientsDate",    coefficient.CoefficientsDate);
-                    command.ExecuteNonQuery();
+                    bool exists = false;
+
+                    if (needsDupeChecking)
+                    {
+                        checkCommand.Parameters.Clear();
+                        checkCommand.Parameters.AddWithValue("@sensorId",           coefficient.SensorId        );
+                        checkCommand.Parameters.AddWithValue("@coefficientIndex",   coefficient.CoefficientIndex);
+                        checkCommand.Parameters.AddWithValue("@coefficientValue",   coefficient.CoefficientValue);
+                        checkCommand.Parameters.AddWithValue("@coefficientsDate",   coefficient.CoefficientsDate);
+
+                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                        if (exists)
+                        {
+                            duplicatesFound = true;
+                            continue;
+                        }
+                    }
+
+                    insertCommand.Parameters.Clear();
+                    insertCommand.Parameters.AddWithValue("@sensorId",          coefficient.SensorId        );
+                    insertCommand.Parameters.AddWithValue("@coefficientIndex",  coefficient.CoefficientIndex);
+                    insertCommand.Parameters.AddWithValue("@coefficientValue",  coefficient.CoefficientValue);
+                    insertCommand.Parameters.AddWithValue("@coefficientsDate",  coefficient.CoefficientsDate);
+
+                    insertCommand.ExecuteNonQuery();
                 }
 
-                var update = connection.CreateCommand();
-                update.CommandText = @"
-                UPDATE  Sensor
-                SET     HasCoefficients = '1'
-                WHERE   SensorId = @sensorId";
-                update.Parameters.AddWithValue("@sensorId", sensorCoefficientList.First().SensorId);
-                update.ExecuteNonQuery();
+                var updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = @"
+                UPDATE Sensor
+                SET HasCoefficients = '1'
+                WHERE SensorId = @sensorId";
+                updateCommand.Parameters.AddWithValue("@sensorId", sensorCoefficientList.First().SensorId);
+                updateCommand.ExecuteNonQuery();
 
                 transaction.Commit();
+
+                return needsDupeChecking ? (duplicatesFound ? 2 : 1) : 0;
             }
         }
 
-        public void InsertVerificationDataBulk(IEnumerable<SensorVerification> verificationDataList, SQLiteConnection connection)
+        public int InsertVerificationBulk(
+            IEnumerable<SensorVerification> verificationDataList,
+            SQLiteConnection connection,
+            bool needsDupeChecking)
         {
             using (var transaction = connection.BeginTransaction())
             {
-                var command = connection.CreateCommand();
-                command.CommandText = @"
+                bool duplicatesFound = false;
+
+                var checkCommand = connection.CreateCommand();
+                checkCommand.CommandText = @"
+                SELECT COUNT(*) 
+                FROM SensorVerification 
+                WHERE
+                SensorId          = @sensorId AND
+                DateTime          = @dateTime AND
+                Temperature       = @temperature AND
+                NPI               = @npi AND
+                VPI               = @vpi AND
+                PressureGiven     = @pressureGiven AND
+                PressureReal      = @pressureReal AND
+                CurrentGiven      = @currentGiven AND
+                CurrentReal       = @currentReal AND
+                Voltage           = @voltage AND
+                Resistance        = @resistance";
+
+                var insertCommand = connection.CreateCommand();
+                insertCommand.CommandText = @"
                 INSERT INTO SensorVerification 
-                (
-                SensorId,
-                DateTime,   
-                Temperature,    
+                (SensorId, 
+                DateTime, 
+                Temperature, 
                 NPI, 
-                VPI,    
-                PressureGiven,  
-                PressureReal,   
+                VPI, 
+                PressureGiven, 
+                PressureReal, 
                 CurrentGiven, 
                 CurrentReal, 
                 Voltage, 
                 Resistance) 
                 VALUES 
-                (   @sensorId,
+                (   @sensorId, 
                     @dateTime, 
                     @temperature, 
                     @npi, 
@@ -397,34 +489,63 @@ namespace SensorFilter
                     @voltage, 
                     @resistance)";
 
-                foreach (var verificationData in verificationDataList)
+                foreach (var data in verificationDataList)
                 {
-                    command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@sensorId",        verificationData.SensorId       );
-                    command.Parameters.AddWithValue("@dateTime",        verificationData.DateTime       );
-                    command.Parameters.AddWithValue("@temperature",     verificationData.Temperature    );
-                    command.Parameters.AddWithValue("@npi",             verificationData.NPI            );
-                    command.Parameters.AddWithValue("@vpi",             verificationData.VPI            );
-                    command.Parameters.AddWithValue("@pressureGiven",   verificationData.PressureGiven  );
-                    command.Parameters.AddWithValue("@pressureReal",    verificationData.PressureReal   );
-                    command.Parameters.AddWithValue("@currentGiven",    verificationData.CurrentGiven   );
-                    command.Parameters.AddWithValue("@currentReal",     verificationData.CurrentReal    );
-                    command.Parameters.AddWithValue("@voltage",         verificationData.Voltage        );
-                    command.Parameters.AddWithValue("@resistance",      verificationData.Resistance     );
-                    command.ExecuteNonQuery();
+                    bool exists = false;
+
+                    if (needsDupeChecking)
+                    {
+                        checkCommand.Parameters.Clear();
+                        checkCommand.Parameters.AddWithValue("@sensorId",       data.SensorId       );
+                        checkCommand.Parameters.AddWithValue("@dateTime",       data.DateTime       );
+                        checkCommand.Parameters.AddWithValue("@temperature",    data.Temperature    );
+                        checkCommand.Parameters.AddWithValue("@npi",            data.NPI            );
+                        checkCommand.Parameters.AddWithValue("@vpi",            data.VPI            );
+                        checkCommand.Parameters.AddWithValue("@pressureGiven",  data.PressureGiven  );
+                        checkCommand.Parameters.AddWithValue("@pressureReal",   data.PressureReal   );
+                        checkCommand.Parameters.AddWithValue("@currentGiven",   data.CurrentGiven   );
+                        checkCommand.Parameters.AddWithValue("@currentReal",    data.CurrentReal    );
+                        checkCommand.Parameters.AddWithValue("@voltage",        data.Voltage        );
+                        checkCommand.Parameters.AddWithValue("@resistance",     data.Resistance     );
+
+                        exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                        if (exists)
+                        {
+                            duplicatesFound = true;
+                            continue;
+                        }
+                    }
+
+                    insertCommand.Parameters.Clear();
+                    insertCommand.Parameters.AddWithValue("@sensorId",          data.SensorId       );
+                    insertCommand.Parameters.AddWithValue("@dateTime",          data.DateTime       );
+                    insertCommand.Parameters.AddWithValue("@temperature",       data.Temperature    );
+                    insertCommand.Parameters.AddWithValue("@npi",               data.NPI            );
+                    insertCommand.Parameters.AddWithValue("@vpi",               data.VPI            );
+                    insertCommand.Parameters.AddWithValue("@pressureGiven",     data.PressureGiven  );
+                    insertCommand.Parameters.AddWithValue("@pressureReal",      data.PressureReal   );
+                    insertCommand.Parameters.AddWithValue("@currentGiven",      data.CurrentGiven   );
+                    insertCommand.Parameters.AddWithValue("@currentReal",       data.CurrentReal    );
+                    insertCommand.Parameters.AddWithValue("@voltage",           data.Voltage        );
+                    insertCommand.Parameters.AddWithValue("@resistance",        data.Resistance     );
+
+                    insertCommand.ExecuteNonQuery();
                 }
 
-                var update = connection.CreateCommand();
-                update.CommandText = @"
-                UPDATE  Sensor
-                SET     HasVerification = '1'
-                WHERE   SensorId = @sensorId";
-                update.Parameters.AddWithValue("@sensorId", verificationDataList.First().SensorId);
-                update.ExecuteNonQuery();
+                var updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = @"
+                UPDATE Sensor
+                SET HasVerification = '1'
+                WHERE SensorId = @sensorId";
+                updateCommand.Parameters.AddWithValue("@sensorId", verificationDataList.First().SensorId);
+                updateCommand.ExecuteNonQuery();
 
                 transaction.Commit();
+
+                return needsDupeChecking ? (duplicatesFound ? 2 : 1) : 0;
             }
         }
+
 
         public bool CheckCharacterisationExists(int sensorId, SQLiteConnection connection)
         {
@@ -442,54 +563,16 @@ namespace SensorFilter
             }
         }
 
-        public bool CheckCharacterisationStringExists(int sensorId, string dateTime, SQLiteConnection connection)
-        {
-            string query = @"
-            SELECT COUNT(*)
-            FROM SensorCharacterisation
-            WHERE SensorId = @sensorId
-            AND DateTime   = @dateTime";
-
-            using (var command = new SQLiteCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@sensorId", sensorId);
-                command.Parameters.AddWithValue("@dateTime", dateTime);
-
-                long count = (long)command.ExecuteScalar();
-                return count > 0;
-            }
-        }
-
         public bool CheckCoefficientExists(int sensorId, SQLiteConnection connection)
         {
             string query = @"
             SELECT COUNT(*) 
             FROM Sensor
-            WHERE SensorId = @sensorId AND HasCoefficients = 1"; ;
+            WHERE SensorId = @sensorId AND HasCoefficients = 1";
 
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@sensorId", sensorId);
-
-                long count = (long)command.ExecuteScalar();
-                return count > 0;
-            }
-        }
-
-        public bool CheckCoefficientStringExists(int sensorId, string coefficientIndex, string coefficientsDate, SQLiteConnection connection)
-        {
-            string query = @"
-            SELECT  COUNT(*)
-            FROM    SensorCoefficients
-            WHERE   SensorId            = @sensorId
-            AND     CoefficientIndex    = @coefficientIndex 
-            AND     CoefficientsDate    = @CoefficientsDate";
-
-            using (var command = new SQLiteCommand (query, connection))
-            {
-                command.Parameters.AddWithValue("@sensorId",            sensorId        );
-                command.Parameters.AddWithValue("@coefficientIndex",    coefficientIndex);
-                command.Parameters.AddWithValue("@CoefficientsDate",    coefficientsDate);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;
@@ -506,26 +589,6 @@ namespace SensorFilter
             using (var command = new SQLiteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@sensorId", sensorId);
-
-                long count = (long)command.ExecuteScalar();
-                return count > 0;
-            }
-        }
-
-        public bool CheckVerificationStringExists(int sensorId, string model, string dateTime, SQLiteConnection connection)
-        {
-            string query = @"
-            SELECT  COUNT(*) 
-            FROM    SensorVerification
-            WHERE   SensorId    = @sensorId
-            AND     Model       = @model
-            AND     DateTime    = @dateTime";
-
-            using (var command = new SQLiteCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@sensorId",    sensorId);
-                command.Parameters.AddWithValue("@model",       model   );
-                command.Parameters.AddWithValue("@dateTime",    dateTime);
 
                 long count = (long)command.ExecuteScalar();
                 return count > 0;

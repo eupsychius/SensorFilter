@@ -542,3 +542,5 @@ C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\zh-Hant\UIAutomationTypes.resources.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\zh-Hant\WindowsBase.resources.dll
 C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Debug\net5.0-windows7.0\win-x64\zh-Hant\WindowsFormsIntegration.resources.dll
+C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\ExportDataWindow.g.cs
+C:\Users\User\source\repos\SensorFilter\SensorFilter\obj\Debug\net5.0-windows7.0\win-x64\ExportDataWindow.baml

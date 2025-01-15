@@ -14,13 +14,25 @@
     <Grid>
         
         <Grid.RowDefinitions>
-            
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="*"/>
+
+            <RowDefinition Height="20"  />
+            <RowDefinition Height="80"  />
+            <RowDefinition Height="*"   />
             
         </Grid.RowDefinitions>
-        
-        <Grid Grid.Row="0">
+
+        <Menu Height="20" VerticalAlignment="Top">
+
+            <MenuItem Header="Файл"         Height="20">
+                <MenuItem Header="Экспортировать">
+                    <MenuItem x:Name="Menu_ExportCh" Header="Характеризацию"        Click="Menu_ExportCh_Click"/>
+                    <MenuItem x:Name="Menu_ExportVr" Header="Верификацию"           Click="Menu_ExportVr_Click"/>
+                    <MenuItem x:Name="Menu_ExportCf" Header="Коэффициенты (HART)"   Click="Menu_ExportCf_Click"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <Grid Grid.Row="1">
             
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="60">
 
@@ -40,30 +52,25 @@
 
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,10,10,10" Height="60">
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,8" x:Name="AdminTools">
+                <StackPanel Orientation="Vertical" x:Name="AdminTools">
 
                     <Button x:Name="DeleteRowsButton"   Content="Удалить строки" FontSize="16" Width="150" 
-                                Click="DeleteRowsButton_Click" Height="26" Margin="0,0,15,0" IsEnabled="False"/>
+                                Click="DeleteRowsButton_Click" Height="26" IsEnabled="False" Margin="0,0,0,5"/>
 
                     <Button x:Name="DeleteSensorButton" Content="Удалить датчик" FontSize="16" Width="150" 
                             Click="DeleteSensorButton_Click" Height="26"/>
 
                 </StackPanel>
-
-                <Button x:Name="ExportCoefficientsButton" Content="Экспортировать коэффициенты" Width="315" Grid.Row="0"
-                        HorizontalAlignment="Left"  VerticalAlignment="Top" FontSize="16" Click="ExportCoefficientsButton_Click" Height="26"/>
                 
             </StackPanel>
-
-            
             
         </Grid>
         
-        <TabControl x:Name="TablesTabControl" Grid.Row="1" SelectionChanged="TablesTabControl_SelectionChanged">
+        <TabControl x:Name="TablesTabControl" Grid.Row="2" SelectionChanged="TablesTabControl_SelectionChanged">
             
             <TabItem Header="Характеризация">
                 
-                <control:FilterDataGrid x:Name="FilteredDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                <control:FilterDataGrid x:Name="ChDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
                     
                     <control:FilterDataGrid.Columns>
 
@@ -83,7 +90,7 @@
             
             <TabItem Header="Верификация">
                 
-                <control:FilterDataGrid x:Name="VerifiedDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                <control:FilterDataGrid x:Name="VrDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
                     
                     <control:FilterDataGrid.Columns>
                         
@@ -95,8 +102,8 @@
                         <control:DataGridTextColumn Header="P факт., кПа"   Width="*"   MinWidth="74"   Binding="{Binding PressureReal}"    />
                         <control:DataGridTextColumn Header="I расч., мА"    Width="*"   MinWidth="86"   Binding="{Binding CurrentGiven}"    IsColumnFiltered="True"/>
                         <control:DataGridTextColumn Header="I факт., мА"    Width="*"   MinWidth="66"   Binding="{Binding CurrentReal}"     />
-                        <control:DataGridTextColumn Header="U, мВ"          Width="*"   MinWidth="61" Binding="{Binding Voltage}"         />
-                        <control:DataGridTextColumn Header="R, Ом"          Width="*"   MinWidth="65" Binding="{Binding Resistance}"      />
+                        <control:DataGridTextColumn Header="U, мВ"          Width="*"   MinWidth="61" Binding="{Binding Voltage}"           />
+                        <control:DataGridTextColumn Header="R, Ом"          Width="*"   MinWidth="65" Binding="{Binding Resistance}"        />
                         
                     </control:FilterDataGrid.Columns>
                     
@@ -113,7 +120,7 @@
                         <RowDefinition Height="*"   />
                     </Grid.RowDefinitions>
                     
-                    <control:FilterDataGrid Grid.RowSpan="2" x:Name="SensorCoefficientsDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
+                    <control:FilterDataGrid Grid.RowSpan="2" x:Name="CfDataGrid" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" FilterLanguage="Russian">
                         
                         <control:FilterDataGrid.Columns>
                             

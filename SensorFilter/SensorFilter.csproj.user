@@ -18,6 +18,9 @@
     <Compile Update="ErrorLogWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ExportDataWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="FilteredTable.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -39,6 +42,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="ErrorLogWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ExportDataWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="FilteredTable.xaml">

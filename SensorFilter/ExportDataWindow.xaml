@@ -1,0 +1,35 @@
+﻿<Window x:Class="SensorFilter.ExportDataWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SensorFilter"
+        mc:Ignorable="d"
+        Title="ExportDataWindow" Height="450" Width="800">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+            <TextBlock Text="Путь экспорта файлов"/>
+            
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10" >
+                <TextBox Width="260.9" Margin="0,0,5,0"/>
+                <Button Width="17.96" Height="17.96" Content="🗀"/>
+            </StackPanel>
+            <TextBlock Text="Экспортировать данные:"/>
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                    <CheckBox Content="Характеризации"/>
+                    <CheckBox Content="Верификации"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                    <CheckBox Content="Коэффициентов (таблица)"/>
+                    <CheckBox Content="Коэффициентов (HART)"/>
+                </StackPanel>
+            </Grid>
+            <Button Content="Экспортировать"/>
+        </StackPanel>
+    </Grid>
+</Window>

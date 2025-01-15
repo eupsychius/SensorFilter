@@ -45,8 +45,8 @@
 
                         </Grid>
 
-                        <Grid Margin="5" x:Name="SyncProgress" Visibility="Hidden">
-                            <ProgressBar    x:Name="SyncProgressBar" Height="24" Margin="0,5,30,5"/>
+                        <Grid Margin="11,0,11,0" x:Name="SyncProgress" Visibility="Hidden">
+                            <ProgressBar    x:Name="SyncProgressBar" VerticalAlignment="Center" Height="24" Margin="0,0,29,0"/>
                             <TextBlock      x:Name="ProgressText" FontSize="16" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
                             
                             <Button         x:Name="StopButton" Width="24" Height="24" FontSize="20" HorizontalAlignment="Right" Click="StopButton_Click">

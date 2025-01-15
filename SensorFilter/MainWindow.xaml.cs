@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -135,7 +137,7 @@ namespace SensorFilter
                         string selectedSerialNumber = SortedByDateComboBox.SelectedItem.ToString();
 
                         int sensorId = DatabaseHelper.GetSensorId(selectedSerialNumber, selectedType, selectedModel) ?? -1;
-                        CreateTable(sensorId, selectedModel);
+                        CreateTable(sensorId);
 
                         ShowSerialsIfPossible();
                     }
@@ -204,7 +206,7 @@ namespace SensorFilter
 
         // Формируем таблицу по серийнику и модели датчика
         private FilteredTable filteredTable;
-        private void CreateTable(int sensorId, string model)
+        private void CreateTable(int sensorId)
         {
             if (filteredTable == null || !filteredTable.IsVisible)
             {
@@ -254,20 +256,19 @@ namespace SensorFilter
                         if (serialNumber > 16777215) serialNumberString  = serialNumberString.Remove(0, 1);
 
                         // Получаем данные и количество уникальных моделей
-                        var (sensor, uniqueTypes, uniqueModels) = DatabaseHelper.GetSensorBySerialNumber(serialNumberString);
+                        List<Sensor> sensorList = DatabaseHelper.GetSensorBySerialNumber(serialNumberString);
 
-                        if (sensor != null && sensor.Count > 0)
+                        if (sensorList != null && sensorList.Count > 0)
                         {
-                            // Если уникальная модель одна, вызываем CreateTable напрямую
-                            if (uniqueModels.Count == 1) 
+                            // Если уникальных записей одна, вызываем CreateTable напрямую
+                            if (sensorList.Count == 1) 
                             {
-                                int sensorId = DatabaseHelper.GetSensorId(serialNumberString, selectedType, selectedModel) ?? -1;
-                                CreateTable(sensorId, uniqueModels[0]); // Передаем единственную модель
+                                CreateTable(sensorList[0].SensorId); // Передаем единственную модель
                             } 
-                            else if (uniqueModels.Count > 1)
+                            else if (sensorList.Count > 1)
                             {
                                 // Открываем диалоговое окно для выбора модели
-                                SelectModelWindow selectModelWindow = new(sensor);
+                                SelectModelWindow selectModelWindow = new(sensorList);
                                 if (selectModelWindow.ShowDialog() == true)
                                 {
                                     // Получаем выбранную модель из окна
@@ -276,7 +277,7 @@ namespace SensorFilter
 
                                     int sensorId = DatabaseHelper.GetSensorId(serialNumberString, selectedType, selectedModel) ?? -1;
 
-                                    try { CreateTable(sensorId, selectedModel); /* Передаем выбранную модель */ }
+                                    try { CreateTable(sensorId); /* Передаем выбранную модель */ }
                                     catch { MessageBox.Show(
                                             "Возникла ошибка при связи с базой данных",
                                             "Ошибка",
@@ -379,16 +380,7 @@ namespace SensorFilter
                         selectedType,
                         selectedModel);
                         if (SortedByDateComboBox.Items.Count != 0)
-                        {
                             SortedByDateComboBox.IsEnabled = true;
-
-                            var textbox = (TextBox)SortedByDateComboBox.Template.FindName("PART_EditableTextBox", SortedByDateComboBox);
-                            if (textbox != null)
-                            {
-                                var parent = (Border)textbox.Parent;
-                                parent.Background = Brushes.Yellow;
-                            }
-                        }
                         else
                         {
                             SortedByDateComboBox.IsEnabled = false;
@@ -416,12 +408,6 @@ namespace SensorFilter
         {
             credits = new CreditsWindow { Owner = this };
             credits.ShowDialog();
-        }
-
-        private void SortedByDateComboBox_Selected(object sender, MouseButtonEventArgs e)
-        {
-            if (!SortedByDateComboBox.IsDropDownOpen)
-                SortedByDateComboBox.IsDropDownOpen = true;
         }
     }
 }

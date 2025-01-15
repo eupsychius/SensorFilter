@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -568,11 +569,19 @@ namespace SensorFilter
                 if (filesWritten % 10 == 1 &&
                 filesWritten % 100 != 11) file = "файла"; // 1; 21; 31
 
+                var messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine(
+                    $"Успешно занесены сведения из {filesWritten} {file}\n" +
+                    $"Предотвращено занесение файлов:");
+
+                if (skippedCharacterisation != 0)
+                    messageBuilder.AppendLine($"Файлы характеризации:\t{skippedCharacterisation}");
+
+                if (skippedVerification != 0)
+                    messageBuilder.AppendLine($"Файлы верификации:\t{skippedVerification}");
+
                 MessageBox.Show(
-                    $"Занесены сведения из {filesWritten} ({Math.Round((double)filesWritten / filesPassed * 100, 1)}%) {file}\n" +
-                    "Предотвращено занесение дубликатов в базу данных:\n" +
-                    $"Файлы характеризации:\t{skippedCharacterisation}\n" +
-                    $"Файлы верификации:\t{skippedVerification}\n",
+                    messageBuilder.ToString(),
                     "Информация",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);

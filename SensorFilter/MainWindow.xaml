@@ -89,7 +89,7 @@
 
                         <TextBlock  FontSize="16" Text="Серийный номер" Margin="0,5,0,0" Width="180"/>
                         <ComboBox   FontSize="14" x:Name="SortedByDateComboBox" IsEnabled="False"
-                                    SelectionChanged ="SortedByDateComboBox_SelectionChanged" Margin="0,5,0,0" Width="180" PreviewMouseLeftButtonDown="SortedByDateComboBox_Selected"/>
+                                    SelectionChanged ="SortedByDateComboBox_SelectionChanged" Margin="0,5,0,0" Width="180"/>
                         
                     </StackPanel>
                     

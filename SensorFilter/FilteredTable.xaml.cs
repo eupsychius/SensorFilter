@@ -29,8 +29,7 @@ namespace SensorFilter
             adminRights = admin;
             sensorId = id;
 
-            AdminTools.IsEnabled = adminRights;
-            ExportCoefficientsButton.Visibility = Visibility.Hidden;
+            if (!adminRights) AdminTools.Visibility = Visibility.Hidden;
         }
 
         // Заносим сведения о датчике по серийнику и модели
@@ -44,9 +43,9 @@ namespace SensorFilter
                 var allCoefficientsData     = databaseHelper.GetCoefficientsData    (sensorId);
 
                 // Пишем в таблицу
-                FilteredDataGrid.           ItemsSource = allCharacterisationData;
-                VerifiedDataGrid.           ItemsSource = allVerificationData;
-                SensorCoefficientsDataGrid. ItemsSource = allCoefficientsData;
+                ChDataGrid.   ItemsSource = allCharacterisationData;
+                VrDataGrid.       ItemsSource = allVerificationData;
+                CfDataGrid.       ItemsSource = allCoefficientsData;
 
                 // Заполняем лейблы над таблицей
                 var sensor = databaseHelper.GetSensorInfo(sensorId);
@@ -66,57 +65,17 @@ namespace SensorFilter
             }
         }
 
-        // Экспорт коэффициентов в тхт файл
-        private async void ExportCoefficientsButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // Получаем список коэффициентов, сгруппированных по датам
-                var coefficientsByDate = await databaseHelper.GetCoefficients(sensorId);
-
-                // Проверяем количество дат
-                if (coefficientsByDate.Count == 1)
-                {
-                    // Если только одна дата, выполняем экспорт сразу
-                    var coefficients = coefficientsByDate.First().Value;
-                    string filePath = GetSaveFilePath();
-                    if (filePath != null)
-                        SaveCoefficientsToFile(SensorID.Text, coefficients, filePath);
-                }
-                else if (coefficientsByDate.Count > 1)
-                {
-                    // Если несколько дат, открываем окно выбора
-                    var selectedDate = ShowDateSelectionDialog(coefficientsByDate.Keys.ToList());
-                    if (selectedDate != null)
-                    {
-                        var coefficients = coefficientsByDate[selectedDate.Value];
-                        string filePath = GetSaveFilePath();
-                        if (filePath != null)
-                            SaveCoefficientsToFile(SensorID.Text, coefficients, filePath);
-                    }
-                }
-            }
-            catch
-            {
-                MessageBox.Show(
-                    "Произошла ошибка получения коэффициентов",
-                    "Ошибка",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
         // Получаем путь для сохранения файла коэффициентов
-        private string GetSaveFilePath()
+        private string GetSaveFilePath(string fileName,string filter, string extension)
         {
             // Создаём SaveFileDialog
             SaveFileDialog saveFileDialog = new()
             {
                 // Настраиваем диалоговое окно
-                Filter      = "Text file (*.txt)|*.txt",    // Фильтр файлов
-                FileName    = $"SN{SensorID.Text}_C",       // Начальное имя файла
-                DefaultExt  = ".txt",                       // Расширение по умолчанию
-                Title       = "Экспорт файла"               // Заголовок окна
+                Filter      = filter,           // Фильтр файлов
+                FileName    = fileName,         // Начальное имя файла
+                DefaultExt  = extension,        // Расширение по умолчанию
+                Title       = "Экспорт файла"   // Заголовок окна
             };
 
             // Показываем диалоговое окно пользователю
@@ -136,33 +95,13 @@ namespace SensorFilter
             return null;
         }
 
-        // Запись коэффициентов в тхт файл
-        public void SaveCoefficientsToFile(string serialNumber, List<SensorCoefficients> coefficients, string filePath)
-        {
-            // Создание строки по образцу
-            StringBuilder fileContent = new StringBuilder();
-            fileContent.AppendLine("[coefs]");
-
-            foreach (var coef in coefficients)
-            {
-                // Форматирование строки, например: ca0 = 175.10406494140625
-                fileContent.AppendLine($"ca{coef.CoefficientIndex} = {coef.CoefficientValue.ToString(CultureInfo.InvariantCulture)}");
-            }
-
-            // Название файла в формате "SN{SerialNumber}_C"
-            string fileName = $"SN{serialNumber}_C.txt";
-
-            // Сохранение файла
-            File.WriteAllText(filePath, fileContent.ToString());
-        }
-
         // Обработка селекта строк
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (adminRights && (
-                FilteredDataGrid.           SelectedItems.Count > 0 || 
-                VerifiedDataGrid.           SelectedItems.Count > 0 || 
-                SensorCoefficientsDataGrid. SelectedItems.Count > 0 ))
+                ChDataGrid.SelectedItems.Count > 0 || 
+                VrDataGrid.SelectedItems.Count > 0 || 
+                CfDataGrid.SelectedItems.Count > 0 ))
                 DeleteRowsButton.IsEnabled = true;
             else
                 DeleteRowsButton.IsEnabled = false;
@@ -172,9 +111,9 @@ namespace SensorFilter
         private void DeleteRowsButton_Click(object sender, RoutedEventArgs e)
         {
             int selectedCount = 
-                FilteredDataGrid.           SelectedItems.Count + 
-                VerifiedDataGrid.           SelectedItems.Count + 
-                SensorCoefficientsDataGrid. SelectedItems.Count;
+                ChDataGrid.SelectedItems.Count + 
+                VrDataGrid.SelectedItems.Count + 
+                CfDataGrid.SelectedItems.Count;
 
             MessageBoxResult result = MessageBox.Show(
                 $"Вы действительно хотите удалить {selectedCount} выбранных строк?", 
@@ -191,9 +130,9 @@ namespace SensorFilter
         // Формирование запроса на удаление выбранных строк
         private void DeleteSelectedRows()
         {
-            var characterisationDataIds = FilteredDataGrid.SelectedItems.           Cast<SensorCharacterisation>(). Select(s => s.CharacterisationId).  ToList();
-            var verificationDataIds     = VerifiedDataGrid.SelectedItems.           Cast<SensorVerification>().     Select(v => v.VerificationId).      ToList();
-            var coefficientDataIds      = SensorCoefficientsDataGrid.SelectedItems. Cast<SensorCoefficients>().     Select(c => c.CoefficientId).       ToList();
+            var characterisationDataIds = ChDataGrid.SelectedItems.Cast<SensorCharacterisation>(). Select(s => s.CharacterisationId).  ToList();
+            var verificationDataIds     = VrDataGrid.SelectedItems.Cast<SensorVerification>().     Select(v => v.VerificationId).      ToList();
+            var coefficientDataIds      = CfDataGrid.SelectedItems.Cast<SensorCoefficients>().     Select(c => c.CoefficientId).       ToList();
 
             if (characterisationDataIds.Any()) databaseHelper.DeleteSensorCharacterisationData  (characterisationDataIds);
             if (verificationDataIds.    Any()) databaseHelper.DeleteVerificationData            (verificationDataIds);
@@ -215,7 +154,7 @@ namespace SensorFilter
                 Close();
             }
             else
-                CheckCoefficientsGridLength();
+                CheckDataGridLength();
 
             // Обновляем таблицы
             FilterBySerialNumber(sensorId);
@@ -224,24 +163,19 @@ namespace SensorFilter
         // Аккуратное удаление строк при переключении вкладки
         private void TablesTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TablesTabControl.SelectedIndex != 0) 
-                FilteredDataGrid.           UnselectAll();
-            if (TablesTabControl.SelectedIndex != 1) 
-                VerifiedDataGrid.           UnselectAll();
-            if (TablesTabControl.SelectedIndex != 2)
-            {
-                SensorCoefficientsDataGrid. UnselectAll();
-                CheckCoefficientsGridLength();
-            }
+            if (TablesTabControl.SelectedIndex != 0) ChDataGrid.UnselectAll();
+            if (TablesTabControl.SelectedIndex != 1) VrDataGrid.UnselectAll();
+            if (TablesTabControl.SelectedIndex != 2) CfDataGrid.UnselectAll();
+
+            CheckDataGridLength();
         }
 
         // Проверяем датагрид на наличие строк
-        private void CheckCoefficientsGridLength()
+        private void CheckDataGridLength()
         {
-            if (SensorCoefficientsDataGrid.Items.Count == 0)
-                ExportCoefficientsButton.Visibility = Visibility.Hidden;
-            else
-                ExportCoefficientsButton.Visibility = Visibility.Visible;
+            Menu_ExportCh.IsEnabled = ChDataGrid.Items.Count != 0;
+            Menu_ExportVr.IsEnabled = VrDataGrid.Items.Count != 0;
+            Menu_ExportCf.IsEnabled = CfDataGrid.Items.Count != 0;
         }
 
         // Кнопка удаления датчика
@@ -293,6 +227,171 @@ namespace SensorFilter
 
                 return false;
             }
+        }
+
+        private async void Menu_ExportCh_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Получаем путь для сохранения
+                string saveType = "-";
+                if (SensorType.Text.Contains("12"))     saveType = "eni12";
+                if (SensorType.Text.Contains("100"))    saveType = "eni100";
+                
+                string filePath = GetSaveFilePath($"ch_{SensorID.Text}_{saveType}_{SensorModel.Text}", "CSV files (*.csv)|*.csv", ".csv");
+
+                if (filePath != null)
+                {
+                    // Получаем данные характеризации
+                    var characterisationData = databaseHelper.GetCharacterisationData(sensorId);
+
+                    // Формируем CSV
+                    StringBuilder csvContent = new StringBuilder();
+                    csvContent.AppendLine("Дата,Температура (ºC),Диапазон,Давление (кПа),Напряжение (мВ),Сопротивнение (Ом),Отклонение");
+
+                    foreach (var data in characterisationData)
+                    {
+                        csvContent.AppendLine(string.Join(",",
+                            data.DateTime.      ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                            data.Temperature.   ToString(                       CultureInfo.InvariantCulture),
+                            data.Range.         ToString(                       CultureInfo.InvariantCulture),
+                            data.Pressure.      ToString(                       CultureInfo.InvariantCulture),
+                            data.Voltage.       ToString("F4",                  CultureInfo.InvariantCulture),
+                            data.Resistance.    ToString("F4",                  CultureInfo.InvariantCulture),
+                            data.Deviation.     ToString(                       CultureInfo.InvariantCulture)));
+                    }
+
+                    // Сохраняем файл
+                    await File.WriteAllTextAsync(filePath, csvContent.ToString());
+                    MessageBox.Show(
+                        "Данные характеризации успешно экспортированы", 
+                        "Информация", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+            }
+            catch
+            {
+                MessageBox.Show(
+                    "Произошла ошибка получения строк характеризации",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private async void Menu_ExportVr_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Получаем путь для сохранения
+
+                string saveType = "-";
+                if (SensorType.Text.Contains("12"))     saveType = "eni12";
+                if (SensorType.Text.Contains("100"))    saveType = "eni100";
+
+                string filePath = GetSaveFilePath($"vr_{SensorID.Text}_{saveType}_{SensorModel.Text}", "CSV files (*.csv)|*.csv", ".csv");
+
+                if (filePath != null)
+                {
+                    // Получаем данные верификации
+                    var verificationData = databaseHelper.GetVerificationData(sensorId);
+
+                    // Формируем CSV
+                    StringBuilder csvContent = new StringBuilder();
+                    csvContent.AppendLine("Дата,Температура (°C),НПИ (кПа),ВПИ (кПа),Давление рассчитанное (кПа),Давление фактическое (кПа),Ток рассчитанный (мА),Ток фактический (мА),Напряжение (мВ),Сопротивление (Ом)");
+
+                    foreach (var data in verificationData)
+                    {
+                        csvContent.AppendLine(string.Join(",",
+                            data.DateTime.      ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                            data.Temperature.   ToString(                       CultureInfo.InvariantCulture),
+                            data.NPI.           ToString(                       CultureInfo.InvariantCulture),
+                            data.VPI.           ToString(                       CultureInfo.InvariantCulture),
+                            data.PressureGiven. ToString("F2",                  CultureInfo.InvariantCulture),
+                            data.PressureReal.  ToString("F2",                  CultureInfo.InvariantCulture),
+                            data.CurrentGiven.  ToString("F4",                  CultureInfo.InvariantCulture),
+                            data.CurrentReal.   ToString("F4",                  CultureInfo.InvariantCulture),
+                            data.Voltage.       ToString("F4",                  CultureInfo.InvariantCulture),
+                            data.Resistance.    ToString("F4",                  CultureInfo.InvariantCulture)));
+                    }
+
+                    // Сохраняем файл
+                    await File.WriteAllTextAsync(filePath, csvContent.ToString());
+                    MessageBox.Show(
+                        "Данные верификации успешно экспортированы", 
+                        "Информация", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+            }
+            catch
+            {
+                MessageBox.Show(
+                    "Произошла ошибка получения строк верификации",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private async void Menu_ExportCf_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Получаем список коэффициентов, сгруппированных по датам
+                var coefficientsByDate = await databaseHelper.GetCoefficients(sensorId);
+
+                // Проверяем количество дат
+                if (coefficientsByDate.Count == 1)
+                {
+                    // Если только одна дата, выполняем экспорт сразу
+                    var coefficients = coefficientsByDate.First().Value;
+                    string filePath = GetSaveFilePath($"SN{SensorID.Text}_C", "Text file (*.txt)|*.txt", ".txt");
+                    if (filePath != null)
+                        SaveCoefficientsToFile(SensorID.Text, coefficients, filePath);
+                }
+                else if (coefficientsByDate.Count > 1)
+                {
+                    // Если несколько дат, открываем окно выбора
+                    var selectedDate = ShowDateSelectionDialog(coefficientsByDate.Keys.ToList());
+                    if (selectedDate != null)
+                    {
+                        var coefficients = coefficientsByDate[selectedDate.Value];
+                        string filePath = GetSaveFilePath($"SN{SensorID.Text}_C", "Text file (*.txt)|*.txt", ".txt");
+                        if (filePath != null)
+                            SaveCoefficientsToFile(SensorID.Text, coefficients, filePath);
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show(
+                    "Произошла ошибка получения коэффициентов",
+                    "Ошибка",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // Запись коэффициентов в тхт файл
+        public void SaveCoefficientsToFile(string serialNumber, List<SensorCoefficients> coefficients, string filePath)
+        {
+            // Создание строки по образцу
+            StringBuilder fileContent = new StringBuilder();
+            fileContent.AppendLine("[coefs]");
+
+            foreach (var coef in coefficients)
+            {
+                // Форматирование строки, например: ca0 = 175.10406494140625
+                fileContent.AppendLine($"ca{coef.CoefficientIndex} = {coef.CoefficientValue.ToString(CultureInfo.InvariantCulture)}");
+            }
+
+            // Название файла в формате "SN{SerialNumber}_C"
+            string fileName = $"SN{serialNumber}_C.txt";
+
+            // Сохранение файла
+            File.WriteAllText(filePath, fileContent.ToString());
         }
     }
 }
