@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 using System.Text;
 
 namespace SensorFilter
@@ -11,7 +12,7 @@ namespace SensorFilter
         private static readonly SensorModels    sensorModels    = new();
 
         // Получаем строки файла на парсинг
-        public bool ParseCharacterisationData(string[] lines, string dbPath, string fileName)
+        public bool ParseCharacterisationData(string[] lines, string dbPath, string fileName, string filePath)
         {
             /// Инт на проверку дубликатов
             /// 0 - Файл не дублирован
@@ -66,6 +67,38 @@ namespace SensorFilter
                         double      deviation;
                         try {       deviation   =   double.     Parse(data[6].Trim()); }
                         catch {     deviation   =   0.0; }
+                        
+                        //Проверка на дефектность значений
+                        if ((
+                            (type == "ЭнИ-100" || type == "-")   &&  (
+                            voltage     <= -1150    || voltage      >= 1150 ||
+                            resistance  <= 0        || resistance   >= 7200 ))
+                            ||
+                            (type == "ЭнИ-12"                           &&  (
+                            voltage     <= -290     || voltage      >= 290  ||
+                            resistance  <= 0        || resistance   >= 6800 ))
+                            ||
+                            (type == "ЭнИ-12М")                         &&  (
+                            resistance  <= 0        || resistance   >= 5300 ))
+                        {
+                            ErrorLogger.LogError(fileName, "БРАК", "Файл неудачной характеризации");
+
+                            // Получаем путь к директории "брак"
+                            string archiveDirectory = Path.GetDirectoryName(filePath);
+                            string defectDirectory  = Path.Combine(archiveDirectory, "брак");
+
+                            // Создаем директорию, если она не существует
+                            if (!Directory.Exists(defectDirectory))
+                            {
+                                Directory.CreateDirectory(defectDirectory);
+                            }
+
+                            // Перемещаем файл в папку "брак"
+                            string targetPath = Path.Combine(defectDirectory, fileName);
+                            File.Move(filePath, targetPath);
+
+                            return true;
+                        }
 
                         sensorCharacterisationList.Add(new SensorCharacterisation
                         {
@@ -84,18 +117,20 @@ namespace SensorFilter
                     else
                     {
                         var coefficientData = lines[line].Split(':');
-                        if (coefficientData.Length < 2) continue;
-
-                        int     coefficientIndex = int.     Parse(coefficientData[0].Trim());
-                        double  coefficientValue = double.  Parse(coefficientData[1].Trim());
-
-                        sensorCoefficientList.Add(new SensorCoefficients
+                        if (coefficientData.Length == 2) 
                         {
-                            SensorId            = sensorId,
-                            CoefficientIndex    = coefficientIndex,
-                            CoefficientValue    = coefficientValue,
-                            CoefficientsDate    = date
-                        });
+                            int     coefficientIndex = int.     Parse(coefficientData[0].Trim());
+                            double  coefficientValue = double.  Parse(coefficientData[1].Trim());
+
+                            sensorCoefficientList.Add(new SensorCoefficients
+                            {
+                                SensorId = sensorId,
+                                CoefficientIndex = coefficientIndex,
+                                CoefficientValue = coefficientValue,
+                                CoefficientsDate = date
+                            });
+                        }
+                        else ErrorLogger.LogError(fileName, "ОШИБКА", "Секция с коэффициентами содержит некорректные данные");
                     }
                 }
 
@@ -103,9 +138,8 @@ namespace SensorFilter
                 {
                     if (databaseHelper.CheckCharacterisationExists(sensorId, connection)) fileDupe = 1;
                     fileDupe = databaseHelper.InsertSensorCharacterisationBulk(sensorCharacterisationList, connection, fileDupe != 0);
-                    if (sensorCoefficientList.Count > 0)
+                    if (sensorCoefficientList.Count > 0 && fileDupe != 2)
                     {
-                        if (databaseHelper.CheckCoefficientExists(sensorId, connection)) fileDupe = 1;
                         fileDupe = databaseHelper.InsertSensorCoefficientsBulk(sensorCoefficientList, connection, fileDupe != 0);
                     }
                     
@@ -114,10 +148,10 @@ namespace SensorFilter
 
                 // Если словили дублирующуюся строку, то сведения не заносятся
                 if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит дубликаты строк");
-                else if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Часть данных уже есть в базе данных");
+                else if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о характеризации уже есть в базе данных");
             }
 
-            // Для возврата количества дубликатов
+            // Для возврата количества пропущенных файлов
             return fileDupe == 2;
         }
 

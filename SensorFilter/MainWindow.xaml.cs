@@ -205,25 +205,12 @@ namespace SensorFilter
         }
 
         // Формируем таблицу по серийнику и модели датчика
-        private FilteredTable filteredTable;
         private void CreateTable(int sensorId)
         {
-            if (filteredTable == null || !filteredTable.IsVisible)
-            {
-                filteredTable = new FilteredTable(adminRightsEnabled, sensorId);
-                filteredTable.FilterBySerialNumber(sensorId);
-                filteredTable.Closed += (s, args) => filteredTable = null;
-                filteredTable.ShowDialog();
-            }
-            else
-            {
-                filteredTable.Focus();
-                MessageBox.Show(
-                    "Закройте текущую таблицу, прежде чем открывать новую",
-                    "Внимание",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
+            var filteredTable = new FilteredTable(adminRightsEnabled, sensorId);
+            filteredTable.FilterBySerialNumber(sensorId);
+            filteredTable.Closed += (s, args) => filteredTable = null;
+            filteredTable.Show();
         }
 
         // Сбрасываем поля поиска по дате
@@ -287,7 +274,7 @@ namespace SensorFilter
                             }
                         }
                         else    MessageBox.Show(
-                                "Нет данных для данного серийного номера",
+                                "Данные по данному серийному номеру не найдены",
                                 "Внимание",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Warning);

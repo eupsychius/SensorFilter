@@ -526,9 +526,9 @@ namespace SensorFilter
                     {
                         // При парсинге ловим возврат по дубликатам файлов
                         skippedRows = ParseAndInsertFileData(fileInfo.FullName, false);
-                        if (skippedRows.Item1) skippedCharacterisation++;
-                        if (skippedRows.Item2) skippedVerification++;
-                        if (!skippedRows.Item3) filesWritten++;
+                        if (    skippedRows.Item1) skippedCharacterisation++;
+                        if (    skippedRows.Item2) skippedVerification++;
+                        if (!   skippedRows.Item3) filesWritten++;
                         
                         filesPassed++;
 
@@ -550,13 +550,17 @@ namespace SensorFilter
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);
                         });
+
                         ToggleElements(true);
+
                         fullSync = false;
                     }
                     // Ловим остальные исключения
                     catch (Exception ex)
                     {
                         Dispatcher.Invoke(() => { ErrorLogger.LogError(fileInfo.Name, "ОШИБКА", ex.Message); });
+                        filesPassed++;
+
                         fullSync = false;
                     }
                 }
@@ -653,7 +657,7 @@ namespace SensorFilter
             // Читаем первую строку и на этой основе подбираем нужный парсинг
             if (fileName.StartsWith("CH_FN_"))      // Если это файл характеризации
             {
-                skippedCharacterisation = fileProcessor.ParseCharacterisationData(lines, GetDbPath(), fileName);
+                skippedCharacterisation = fileProcessor.ParseCharacterisationData(lines, GetDbPath(), fileName, filePath);
                 skippedFile = skippedCharacterisation;
             }
             else if (fileName.StartsWith("VR_FN_")) // Если это файл верификации

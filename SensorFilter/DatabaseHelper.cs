@@ -623,33 +623,87 @@ namespace SensorFilter
             }
         }
 
-        public void DeleteSensorCharacterisationData(List<int> characterisationIds)
+        public bool DeleteCharacterisationData(List<int> characterisationIds, int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))
             {
+                bool dataDeleted = false;
                 connection.Open();
-                string query = "DELETE FROM SensorCharacterisation WHERE CharacterisationId IN @Ids";
-                connection.Execute(query, new { Ids = characterisationIds });
+
+                // Проверяем наличие строк
+                string checkQuery = "SELECT COUNT(*) FROM SensorCharacterisation WHERE SensorId = @SensorId";
+                long count = connection.ExecuteScalar<long>(checkQuery, new { SensorId = sensorId });
+
+                if (count > 0)
+                {
+                    string query = "DELETE FROM SensorCharacterisation WHERE CharacterisationId IN @Ids";
+                    connection.Execute(query, new { Ids = characterisationIds });
+                    dataDeleted = true;
+                }
+
+                // Обновляем флаг HasCharacterisation
+                string updateQuery = 
+                    "UPDATE Sensor SET HasCharacterisation = " +
+                    "CASE WHEN EXISTS " +
+                    "(SELECT 1 FROM SensorCharacterisation " +
+                    "WHERE SensorId = @SensorId) " +
+                    "THEN 1 ELSE 0 END " +
+                    "WHERE SensorId = @SensorId";
+                connection.Execute(updateQuery, new { SensorId = sensorId });
+
+                return dataDeleted;
             }
         }
 
-        public void DeleteVerificationData(List<int> verificationIds)
+        public bool DeleteVerificationData(List<int> verificationIds, int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))
             {
+                bool dataDeleted = false;
                 connection.Open();
-                string query = "DELETE FROM SensorVerification WHERE VerificationId IN @Ids";
-                connection.Execute(query, new { Ids = verificationIds });
+
+                // Проверяем наличие строк
+                string checkQuery = "SELECT COUNT(*) FROM SensorVerification WHERE SensorId = @SensorId";
+                long count = connection.ExecuteScalar<long>(checkQuery, new { SensorId = sensorId });
+
+                if (count > 0)
+                {
+                    string query = "DELETE FROM SensorVerification WHERE VerificationId IN @Ids";
+                    connection.Execute(query, new { Ids = verificationIds });
+                    dataDeleted = true;
+                }
+
+                // Обновляем флаг HasVerification
+                string updateQuery = "UPDATE Sensor SET HasVerification = 0 WHERE SensorId = @SensorId";
+                connection.Execute(updateQuery, new { SensorId = sensorId });
+
+                return dataDeleted;
             }
         }
 
-        public void DeleteCoefficientData(List<int> coefficientIds)
+        public bool DeleteCoefficientData(List<int> coefficientIds, int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))
             {
+                bool dataDeleted = false;
                 connection.Open();
-                string query = "DELETE FROM SensorCoefficients WHERE CoefficientId IN @Ids";
-                connection.Execute(query, new { Ids = coefficientIds });
+
+                // Проверяем наличие строк
+                string checkQuery = "SELECT COUNT(*) FROM SensorCoefficients WHERE SensorId = @SensorId";
+                long count = connection.ExecuteScalar<long>(checkQuery, new { SensorId = sensorId });
+
+                if (count > 0)
+                {
+                    string query = "DELETE FROM SensorCoefficients WHERE CoefficientId IN @Ids";
+                    connection.Execute(query, new { Ids = coefficientIds });
+                    dataDeleted = true;
+                }
+
+                // Обновляем флаг HasCoefficients
+                string updateQuery = "UPDATE Sensor SET HasCoefficients = CASE WHEN EXISTS (SELECT 1 FROM SensorCoefficients WHERE SensorId = @SensorId) THEN 1 ELSE 0 END WHERE SensorId = @SensorId";
+                connection.Execute(updateQuery, new { SensorId = sensorId });
+
+                return dataDeleted;
             }
         }
 
@@ -660,18 +714,18 @@ namespace SensorFilter
                 connection.Open();
 
                 // Проверяем наличие данных в SensorVerification
-                string  sensorDataQuery     = "SELECT COUNT(*) FROM SensorCharacterisation WHERE SensorId = @SensorId";
-                long    sensorDataCount     = connection.ExecuteScalar<long>(sensorDataQuery,   new { SensorId = sensorId });
+                string  characterisationQuery   = "SELECT COUNT(*) FROM SensorCharacterisation WHERE SensorId = @SensorId";
+                long    characterisationCount   = connection.ExecuteScalar<long>(characterisationQuery,     new { SensorId = sensorId });
 
                 // Проверяем наличие данных в SensorVerification
-                string  verificationQuery   = "SELECT COUNT(*) FROM SensorVerification WHERE SensorId = @SensorId";
-                long    verificationCount   = connection.ExecuteScalar<long>(verificationQuery, new { SensorId = sensorId });
+                string  verificationQuery       = "SELECT COUNT(*) FROM SensorVerification WHERE SensorId = @SensorId";
+                long    verificationCount       = connection.ExecuteScalar<long>(verificationQuery,         new { SensorId = sensorId });
 
                 // Проверяем наличие данных в SensorCoefficients
-                string  coefficientQuery    = "SELECT COUNT(*) FROM SensorCoefficients WHERE SensorId = @SensorId";
-                long    coefficientCount    = connection.ExecuteScalar<long>(coefficientQuery,  new { SensorId = sensorId });
+                string  coefficientQuery        = "SELECT COUNT(*) FROM SensorCoefficients WHERE SensorId = @SensorId";
+                long    coefficientCount        = connection.ExecuteScalar<long>(coefficientQuery,          new { SensorId = sensorId });
 
-                return sensorDataCount > 0 || verificationCount > 0 || coefficientCount > 0;
+                return characterisationCount > 0 || verificationCount > 0 || coefficientCount > 0;
             }
         }
 

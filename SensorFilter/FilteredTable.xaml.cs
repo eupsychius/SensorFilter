@@ -72,10 +72,11 @@ namespace SensorFilter
             SaveFileDialog saveFileDialog = new()
             {
                 // Настраиваем диалоговое окно
-                Filter      = filter,           // Фильтр файлов
-                FileName    = fileName,         // Начальное имя файла
-                DefaultExt  = extension,        // Расширение по умолчанию
-                Title       = "Экспорт файла"   // Заголовок окна
+                Filter              = filter,                               // Фильтр файлов
+                FileName            = fileName,                             // Начальное имя файла
+                DefaultExt          = extension,                            // Расширение по умолчанию
+                Title               = "Экспорт файла",                      // Заголовок окна
+                InitialDirectory    = AppDomain.CurrentDomain.BaseDirectory // Корневая папка программы
             };
 
             // Показываем диалоговое окно пользователю
@@ -134,14 +135,23 @@ namespace SensorFilter
             var verificationDataIds     = VrDataGrid.SelectedItems.Cast<SensorVerification>().     Select(v => v.VerificationId).      ToList();
             var coefficientDataIds      = CfDataGrid.SelectedItems.Cast<SensorCoefficients>().     Select(c => c.CoefficientId).       ToList();
 
-            if (characterisationDataIds.Any()) databaseHelper.DeleteSensorCharacterisationData  (characterisationDataIds);
-            if (verificationDataIds.    Any()) databaseHelper.DeleteVerificationData            (verificationDataIds);
-            if (coefficientDataIds.     Any()) databaseHelper.DeleteCoefficientData             (coefficientDataIds);
+            bool dataDeleted = false;
+
+            if (characterisationDataIds.Any()) dataDeleted = databaseHelper.DeleteCharacterisationData    (characterisationDataIds,   sensorId);
+            if (verificationDataIds.    Any()) dataDeleted = databaseHelper.DeleteVerificationData        (verificationDataIds,       sensorId);
+            if (coefficientDataIds.     Any()) dataDeleted = databaseHelper.DeleteCoefficientData         (coefficientDataIds,        sensorId);
 
             // Проверка наличия данных по серийному номеру и модели
             bool hasData = databaseHelper.HasSensorRelatedData(sensorId);
 
             // Если данных нет, удаляем сам датчик
+            if (!dataDeleted)
+                MessageBox.Show(
+                    "Сведения не были найдены в базе данных.\n" +
+                    "Операция была отменена",
+                    "Внимание",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             if (!hasData)
             {
                 databaseHelper.DeleteSensor(sensorId);
@@ -234,11 +244,7 @@ namespace SensorFilter
             try
             {
                 // Получаем путь для сохранения
-                string saveType = "-";
-                if (SensorType.Text.Contains("12"))     saveType = "eni12";
-                if (SensorType.Text.Contains("100"))    saveType = "eni100";
-                
-                string filePath = GetSaveFilePath($"ch_{SensorID.Text}_{saveType}_{SensorModel.Text}", "CSV files (*.csv)|*.csv", ".csv");
+                string filePath = GetSaveFilePath($"SN_{SensorID.Text}_CH", "CSV files (*.csv)|*.csv", ".csv");
 
                 if (filePath != null)
                 {
@@ -247,22 +253,23 @@ namespace SensorFilter
 
                     // Формируем CSV
                     StringBuilder csvContent = new StringBuilder();
-                    csvContent.AppendLine("Дата,Температура (ºC),Диапазон,Давление (кПа),Напряжение (мВ),Сопротивнение (Ом),Отклонение");
+                    csvContent.AppendLine($"Заводской номер: {SensorID.Text}; Тип: {SensorType.Text}; Модель: {SensorModel.Text}");
+                    csvContent.AppendLine("Дата;Температура, °C;Диапазон;Давление, кПа;Напряжение, мВ;Сопротивнение, Ом;Отклонение");
 
                     foreach (var data in characterisationData)
                     {
-                        csvContent.AppendLine(string.Join(",",
+                        csvContent.AppendLine(string.Join(";",
                             data.DateTime.      ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
-                            data.Temperature.   ToString(                       CultureInfo.InvariantCulture),
-                            data.Range.         ToString(                       CultureInfo.InvariantCulture),
-                            data.Pressure.      ToString(                       CultureInfo.InvariantCulture),
-                            data.Voltage.       ToString("F4",                  CultureInfo.InvariantCulture),
-                            data.Resistance.    ToString("F4",                  CultureInfo.InvariantCulture),
-                            data.Deviation.     ToString(                       CultureInfo.InvariantCulture)));
+                            data.Temperature.   ToString(CultureInfo.CurrentCulture),
+                            data.Range.         ToString(CultureInfo.CurrentCulture),
+                            data.Pressure.      ToString(CultureInfo.CurrentCulture),
+                            data.Voltage.       ToString(CultureInfo.CurrentCulture),
+                            data.Resistance.    ToString(CultureInfo.CurrentCulture),
+                            data.Deviation.     ToString(CultureInfo.CurrentCulture)));
                     }
 
                     // Сохраняем файл
-                    await File.WriteAllTextAsync(filePath, csvContent.ToString());
+                    await File.WriteAllTextAsync(filePath, csvContent.ToString(), Encoding.UTF8);
                     MessageBox.Show(
                         "Данные характеризации успешно экспортированы", 
                         "Информация", 
@@ -285,12 +292,7 @@ namespace SensorFilter
             try
             {
                 // Получаем путь для сохранения
-
-                string saveType = "-";
-                if (SensorType.Text.Contains("12"))     saveType = "eni12";
-                if (SensorType.Text.Contains("100"))    saveType = "eni100";
-
-                string filePath = GetSaveFilePath($"vr_{SensorID.Text}_{saveType}_{SensorModel.Text}", "CSV files (*.csv)|*.csv", ".csv");
+                string filePath = GetSaveFilePath($"SN_{SensorID.Text}_VR", "CSV files (*.csv)|*.csv", ".csv");
 
                 if (filePath != null)
                 {
@@ -299,25 +301,26 @@ namespace SensorFilter
 
                     // Формируем CSV
                     StringBuilder csvContent = new StringBuilder();
-                    csvContent.AppendLine("Дата,Температура (°C),НПИ (кПа),ВПИ (кПа),Давление рассчитанное (кПа),Давление фактическое (кПа),Ток рассчитанный (мА),Ток фактический (мА),Напряжение (мВ),Сопротивление (Ом)");
+                    csvContent.AppendLine($"Заводской номер: {SensorID.Text}; Тип: {SensorType.Text}; Модель: {SensorModel.Text}");
+                    csvContent.AppendLine("Дата;Температура, °C;НПИ, кПа;ВПИ, кПа;Давление рассчитанное, кПа;Давление фактическое, кПа;Ток рассчитанный, мА;Ток фактический, мА;Напряжение мВ;Сопротивление, Ом");
 
                     foreach (var data in verificationData)
                     {
-                        csvContent.AppendLine(string.Join(",",
+                        csvContent.AppendLine(string.Join(";",
                             data.DateTime.      ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
-                            data.Temperature.   ToString(                       CultureInfo.InvariantCulture),
-                            data.NPI.           ToString(                       CultureInfo.InvariantCulture),
-                            data.VPI.           ToString(                       CultureInfo.InvariantCulture),
-                            data.PressureGiven. ToString("F2",                  CultureInfo.InvariantCulture),
-                            data.PressureReal.  ToString("F2",                  CultureInfo.InvariantCulture),
-                            data.CurrentGiven.  ToString("F4",                  CultureInfo.InvariantCulture),
-                            data.CurrentReal.   ToString("F4",                  CultureInfo.InvariantCulture),
-                            data.Voltage.       ToString("F4",                  CultureInfo.InvariantCulture),
-                            data.Resistance.    ToString("F4",                  CultureInfo.InvariantCulture)));
+                            data.Temperature.   ToString(CultureInfo.CurrentCulture),
+                            data.NPI.           ToString(CultureInfo.CurrentCulture),
+                            data.VPI.           ToString(CultureInfo.CurrentCulture),
+                            data.PressureGiven. ToString(CultureInfo.CurrentCulture),
+                            data.PressureReal.  ToString(CultureInfo.CurrentCulture),
+                            data.CurrentGiven.  ToString(CultureInfo.CurrentCulture),
+                            data.CurrentReal.   ToString(CultureInfo.CurrentCulture),
+                            data.Voltage.       ToString(CultureInfo.CurrentCulture),
+                            data.Resistance.    ToString(CultureInfo.CurrentCulture)));
                     }
 
                     // Сохраняем файл
-                    await File.WriteAllTextAsync(filePath, csvContent.ToString());
+                    await File.WriteAllTextAsync(filePath, csvContent.ToString(), Encoding.UTF8);
                     MessageBox.Show(
                         "Данные верификации успешно экспортированы", 
                         "Информация", 
