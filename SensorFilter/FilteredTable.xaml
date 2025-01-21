@@ -25,9 +25,9 @@
 
             <MenuItem Header="Файл"         Height="20">
                 <MenuItem Header="Экспортировать">
-                    <MenuItem x:Name="Menu_ExportCh" Header="Характеризацию"        Click="Menu_ExportCh_Click"/>
-                    <MenuItem x:Name="Menu_ExportVr" Header="Верификацию"           Click="Menu_ExportVr_Click"/>
-                    <MenuItem x:Name="Menu_ExportCf" Header="Коэффициенты (HART)"   Click="Menu_ExportCf_Click"/>
+                    <MenuItem x:Name="Menu_ExportCh" Header="Файл характеризацию"   Click="Menu_ExportCh_Click"/>
+                    <MenuItem x:Name="Menu_ExportVr" Header="Файл верификации"      Click="Menu_ExportVr_Click"/>
+                    <MenuItem x:Name="Menu_ExportCf" Header="Коэффициенты"          Click="Menu_ExportCf_Click"/>
                 </MenuItem>
             </MenuItem>
         </Menu>

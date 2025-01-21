@@ -329,6 +329,9 @@ namespace SensorFilter
                 case 2:
                     ScannerModelCombobox.ItemsSource = sensorModels.Models_EnI12;
                     break;
+                case 3:
+                    ScannerModelCombobox.ItemsSource = sensorModels.Models_EnI12_M;
+                    break;
                 default:
                     ScannerModelCombobox.SelectedIndex = -1;
                     break;

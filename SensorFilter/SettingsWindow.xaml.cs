@@ -182,7 +182,7 @@ namespace SensorFilter
                     // Создаем новый конфиг дб_инфо, если он по какой-то причине отсутствует
                     File.WriteAllText(GetDbInfoPath(), "LastScanDate=01.01.2000\nLastSyncDate=01.01.2000");
                     MessageBox.Show(
-                        "Файл db_info.txt не найден, создан новый файл с значениями по умолчанию.",
+                        "Файл db_info.txt не найден, создан новый файл с значениями по умолчанию",
                         "Информация",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -250,7 +250,7 @@ namespace SensorFilter
                     // Пишем новый дбинфо, если не был найден
                     File.WriteAllText(newDbInfoPath, "LastScanDate=01.01.2000\nLastSyncDate=01.01.2000");
                     MessageBox.Show(
-                        "Файл db_info.txt не найден, создан новый файл с значениями по умолчанию.", 
+                        "Файл db_info.txt не найден, создан новый файл с значениями по умолчанию", 
                         "Информация", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Information);
@@ -351,7 +351,7 @@ namespace SensorFilter
                 if (GetDataPath().EndsWith(":\\"))
                 {
                     MessageBoxResult result = MessageBox.Show(
-                        "Задан корневой каталог диска для сканирования.\n" +
+                        "Задан корневой каталог диска для сканирования\n" +
                         "Вы уверены, что хотите продолжить?",
                         "Внимание",
                         MessageBoxButton.YesNo,
@@ -367,7 +367,7 @@ namespace SensorFilter
                 if (!Directory.Exists(dataPath))
                 {
                     MessageBox.Show(
-                        "Каталог не существует или недоступен.", 
+                        "Каталог не существует или недоступен", 
                         "Ошибка", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Error);
@@ -387,7 +387,7 @@ namespace SensorFilter
                 if (wasScanCancelled)
                 {
                     MessageBox.Show(
-                        "Операция сканирования была остановлена.",
+                        "Операция сканирования была остановлена",
                         "Информация", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Information);
@@ -530,8 +530,6 @@ namespace SensorFilter
                         if (    skippedRows.Item2) skippedVerification++;
                         if (!   skippedRows.Item3) filesWritten++;
                         
-                        filesPassed++;
-
                         // Обновляем прогрессбар
                         Dispatcher.Invoke(() =>
                         {
@@ -545,7 +543,7 @@ namespace SensorFilter
                         Dispatcher.Invoke(() =>
                         {
                             MessageBox.Show(
-                                "Операция была отменена.",
+                                "Операция была отменена",
                                 "Информация",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);
@@ -558,11 +556,12 @@ namespace SensorFilter
                     // Ловим остальные исключения
                     catch (Exception ex)
                     {
-                        Dispatcher.Invoke(() => { ErrorLogger.LogError(fileInfo.Name, "ОШИБКА", ex.Message); });
-                        filesPassed++;
+                        Dispatcher.Invoke(() => { ErrorLogger.LogErrorAsync(fileInfo.Name, "ОШИБКА", ex.Message); });
 
                         fullSync = false;
                     }
+
+                    filesPassed++;
                 }
             }, token);
 
@@ -662,7 +661,7 @@ namespace SensorFilter
             }
             else if (fileName.StartsWith("VR_FN_")) // Если это файл верификации
             {
-                skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName);
+                skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName, filePath);
                 skippedFile = skippedVerification;
             }
 

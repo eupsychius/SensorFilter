@@ -147,7 +147,7 @@ namespace SensorFilter
             // Если данных нет, удаляем сам датчик
             if (!dataDeleted)
                 MessageBox.Show(
-                    "Сведения не были найдены в базе данных.\n" +
+                    "Сведения не были найдены в базе данных\n" +
                     "Операция была отменена",
                     "Внимание",
                     MessageBoxButton.OK,
@@ -156,7 +156,7 @@ namespace SensorFilter
             {
                 databaseHelper.DeleteSensor(sensorId);
                 MessageBox.Show(
-                    "Датчик был удалён, так как записи о нём отсутствуют в связанных таблицах.",
+                    "Датчик был удалён, так как записи о нём отсутствуют в связанных таблицах",
                     "Информация",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -202,7 +202,7 @@ namespace SensorFilter
                 if (DeleteSensorAndAllRelatedData(SensorID.Text, SensorType.Text, SensorModel.Text))
                 {
                     MessageBox.Show(
-                        "Датчик и все связанные данные успешно удалены.",
+                        "Датчик и все связанные данные успешно удалены",
                         "Информация",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -254,7 +254,7 @@ namespace SensorFilter
                     // Формируем CSV
                     StringBuilder csvContent = new StringBuilder();
                     csvContent.AppendLine($"Заводской номер: {SensorID.Text}; Тип: {SensorType.Text}; Модель: {SensorModel.Text}");
-                    csvContent.AppendLine("Дата;Температура, °C;Диапазон;Давление, кПа;Напряжение, мВ;Сопротивнение, Ом;Отклонение");
+                    csvContent.AppendLine("Дата;Температура, °C;Диапазон;Давление, кПа;Напряжение, мВ;Сопротивление, Ом;Отклонение");
 
                     foreach (var data in characterisationData)
                     {
@@ -366,6 +366,12 @@ namespace SensorFilter
                             SaveCoefficientsToFile(SensorID.Text, coefficients, filePath);
                     }
                 }
+
+                MessageBox.Show(
+                    "Коэффициенты успешно экспортированы",
+                    "Информация",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             catch
             {

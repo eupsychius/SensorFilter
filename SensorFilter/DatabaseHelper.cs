@@ -103,7 +103,7 @@ namespace SensorFilter
             else
             {
                 MessageBox.Show(
-                    "База данных уже существует.", 
+                    "База данных уже существует", 
                     "Информация", 
                     MessageBoxButton.OK, 
                     MessageBoxImage.Information);
@@ -159,7 +159,7 @@ namespace SensorFilter
             }
         }
 
-        //
+        // Получаем верификацию
         public List<SensorVerification> GetVerificationData(int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))
@@ -169,6 +169,7 @@ namespace SensorFilter
             }
         }
 
+        // Получаем коэффициенты
         public List<SensorCoefficients> GetCoefficientsData(int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))
@@ -180,6 +181,7 @@ namespace SensorFilter
             }
         }
 
+        // Получаем датчик через его ID
         public (string SerialNumber, string Type, string Model)? GetSensorInfo(int sensorId)
         {
             using (var connection = new SQLiteConnection(ConnStr))

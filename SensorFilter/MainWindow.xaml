@@ -80,7 +80,8 @@
                             <ComboBoxItem Content="Не указано"  />
                             <ComboBoxItem Content="ЭнИ-100"     />
                             <ComboBoxItem Content="ЭнИ-12"      />
-                            
+                            <ComboBoxItem Content="ЭнИ-12М"     />
+
                         </ComboBox>
                         
                         <TextBlock  FontSize="16" Text="Модель устройства" Margin="0,5,0,0" Width="180"/>
