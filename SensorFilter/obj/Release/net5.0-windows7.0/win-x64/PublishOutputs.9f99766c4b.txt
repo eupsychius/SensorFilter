@@ -1,5 +1,0 @@
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\SensorFilter.pdb
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\icon.ico
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\SensorFilter.dll.config
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\SQLite.Interop.dll
-C:\Users\User\source\repos\SensorFilter\SensorFilter\bin\Release\net5.0-windows7.0\win-x64\publish\SensorFilter.exe

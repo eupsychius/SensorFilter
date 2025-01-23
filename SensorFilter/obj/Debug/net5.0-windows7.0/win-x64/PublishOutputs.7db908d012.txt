@@ -1,5 +1,0 @@
-C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.pdb
-C:\Users\User\Documents\SensorFilter\Releases\icon.ico
-C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.dll.config
-C:\Users\User\Documents\SensorFilter\Releases\SQLite.Interop.dll
-C:\Users\User\Documents\SensorFilter\Releases\SensorFilter.exe
