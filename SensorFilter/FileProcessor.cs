@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace SensorFilter
@@ -40,14 +41,16 @@ namespace SensorFilter
                 var sensorCharacterisationList  = new List<SensorCharacterisation>();
                 var sensorCoefficientList       = new List<SensorCoefficients>();
 
-                bool coefficientsSection    = false;
-                int coefficientCount        = 0;
-                DateTime date               = DateTime.MinValue;
+                bool    coefficientsSection = false;
+                bool    formatWarned        = false;
+                int     coefficientCount    = 0;
+                DateTime date = DateTime.MinValue;
 
-                for (int line = 4; line < lines.Length; line++)
+                for (int line = 5; line < lines.Length; line++)
                 {
                     if (lines[line].Contains("Коэффициенты датчика"))
                     {
+                        formatWarned        = false;
                         coefficientsSection = true;
                         coefficientCount    = int.Parse(lines[++line].Split(':')[1].Trim());
                         line++;
@@ -56,71 +59,88 @@ namespace SensorFilter
                     if (!coefficientsSection)
                     {
                         var data = lines[line].Split('|');
-                        if (data.Length < 7) continue;
 
-                        DateTime    dateTime    =   DateTime.   Parse(data[0].Trim());
-                        double      temperature =   double.     Parse(data[1].Trim());
-                        int         range       =   int.        Parse(data[2].Trim());
-                        double      pressure    =   double.     Parse(data[3].Trim());
-                        double      voltage     =   double.     Parse(data[4].Trim());
-                        double      resistance  =   double.     Parse(data[5].Trim());
-                        double      deviation;
-                        try {       deviation   =   double.     Parse(data[6].Trim()); }
-                        catch {     deviation   =   0.0; }
-                        
+                        if (!lines[line].Contains("|")) continue;
+
+                        DateTime dateTime;
+                        double temperature;
+                        int range;
+                        double pressure;
+                        double voltage;
+                        double resistance;
+                        double deviation;
+
+                        try
+                        {
+                            dateTime = DateTime.Parse(data[0].Trim());
+                            temperature = double.Parse(data[1].Trim());
+                            range = int.Parse(data[2].Trim());
+                            pressure = double.Parse(data[3].Trim());
+                            voltage = double.Parse(data[4].Trim());
+                            resistance = double.Parse(data[5].Trim());
+                            try
+                            { deviation = double.Parse(data[6].Trim()); }
+                            catch
+                            { deviation = 0.0; }
+                        }
+                        catch
+                        {
+                            if (!formatWarned) ErrorLogger.LogErrorAsync(fileName, "ОШИБКА", "Файл содержит строку характеризации неправильного формата");
+                            formatWarned = true;
+                            continue;
+                        }
+
                         //Проверка на дефектность значений
                         if ((
-                            (type == "ЭнИ-100" || type == "-")   &&  (
-                            voltage     <= -1150    || voltage      >= 1150 ||
-                            resistance  <= 0        || resistance   >= 7200 ))
+                            (type == "ЭнИ-100" || type == "-") && (
+                            voltage <= -1150 || voltage >= 1150 ||
+                            resistance <= 0 || resistance >= 7200))
                             ||
-                            (type == "ЭнИ-12"                           &&  (
-                            voltage     <= -290     || voltage      >= 290  ||
-                            resistance  <= 0        || resistance   >= 6800 ))
+                            (type == "ЭнИ-12" && (
+                            voltage <= -290 || voltage >= 290 ||
+                            resistance <= 0 || resistance >= 6800))
                             ||
-                            (type == "ЭнИ-12М")                         &&  (
-                            resistance  <= 0        || resistance   >= 5300 ))
+                            (type == "ЭнИ-12М") && (
+                            resistance <= 0 || resistance >= 5300))
                         {
-                            ErrorLogger.LogError(fileName, "БРАК", "Файл неудачной характеризации");
+                            ErrorLogger.LogErrorAsync(fileName, "БРАК", "Файл неудачной характеризации");
 
-                            // Получаем путь к директории "брак"
-                            string archiveDirectory = Path.GetDirectoryName(filePath);
-                            string defectDirectory  = Path.Combine(archiveDirectory, "брак");
-
-                            // Создаем директорию, если она не существует
-                            if (!Directory.Exists(defectDirectory))
-                            {
-                                Directory.CreateDirectory(defectDirectory);
-                            }
-
-                            // Перемещаем файл в папку "брак"
-                            string targetPath = Path.Combine(defectDirectory, fileName);
-                            File.Move(filePath, targetPath);
+                            MoveToDefect(fileName, filePath);
 
                             return true;
                         }
 
                         sensorCharacterisationList.Add(new SensorCharacterisation
                         {
-                            SensorId    = sensorId,
-                            DateTime    = dateTime,
+                            SensorId = sensorId,
+                            DateTime = dateTime,
                             Temperature = temperature,
-                            Range       = range,
-                            Pressure    = pressure,
-                            Voltage     = voltage,
-                            Resistance  = resistance,
-                            Deviation   = deviation
+                            Range = range,
+                            Pressure = pressure,
+                            Voltage = voltage,
+                            Resistance = resistance,
+                            Deviation = deviation
                         });
 
                         date = dateTime;
                     }
                     else
                     {
-                        var coefficientData = lines[line].Split(':');
-                        if (coefficientData.Length == 2) 
+                        if (Math.Abs((sensorCharacterisationList.Last().DateTime - sensorCharacterisationList.First().DateTime).TotalDays) > 7)
                         {
-                            int     coefficientIndex = int.     Parse(coefficientData[0].Trim());
-                            double  coefficientValue = double.  Parse(coefficientData[1].Trim());
+                            ErrorLogger.LogErrorAsync(fileName, "БРАК", "Файл содержит данные характеризации за разные даты");
+
+                            MoveToDefect(fileName, filePath);
+
+                            return true;
+                        }
+
+                        var coefficientData = lines[line].Split(':');
+
+                        try
+                        {
+                            int coefficientIndex = int.Parse(coefficientData[0].Trim());
+                            double coefficientValue = double.Parse(coefficientData[1].Trim());
 
                             sensorCoefficientList.Add(new SensorCoefficients
                             {
@@ -130,7 +150,12 @@ namespace SensorFilter
                                 CoefficientsDate = date
                             });
                         }
-                        else ErrorLogger.LogError(fileName, "ОШИБКА", "Секция с коэффициентами содержит некорректные данные");
+                        catch
+                        {
+                            if (!formatWarned) ErrorLogger.LogErrorAsync(fileName, "ОШИБКА", "Файл содержит строку коэффициентов неправильного формата");
+                            formatWarned = true;
+                            continue;
+                        }
                     }
                 }
 
@@ -142,9 +167,9 @@ namespace SensorFilter
                     {
                         fileDupe = databaseHelper.InsertSensorCoefficientsBulk(sensorCoefficientList, connection, fileDupe != 0);
                     }
-                    
+
                 }
-                catch (Exception ex) { ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message); }
+                catch (Exception ex) { ErrorLogger.LogErrorAsync(fileName, "ОШИБКА", ex.Message); }
 
                 // Если словили дублирующуюся строку, то сведения не заносятся
                 if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит дубликаты строк");
@@ -155,7 +180,7 @@ namespace SensorFilter
             return fileDupe == 2;
         }
 
-        public bool ParseVerificationData(string[] lines, string dbPath, string fileName)
+        public bool ParseVerificationData(string[] lines, string dbPath, string fileName, string filePath)
         {
             /// Инт на проверку дубликатов
             /// 0 - Файл не дублирован
@@ -166,12 +191,12 @@ namespace SensorFilter
             var verificationDataList = new List<SensorVerification>(); // Коллекция для пакетной вставки данных верификации
 
             // Парсим информацию о датчике из второй строки
-            string  sensorInfo      = lines[1];
-            var     sensorDetails   = sensorInfo.Split(';');
+            string sensorInfo = lines[1];
+            var sensorDetails = sensorInfo.Split(';');
 
-            string  serialNumber    =                                           sensorDetails[1].Split(':')[1].Trim();
-            string  type            = DecodeString(sensorDetails.Length > 2 ?   sensorDetails[2].Split(':')[1].Trim() : "-");
-            string  model           = DecodeString(sensorDetails.Length > 3 ?   sensorDetails[3].Split(':')[1].Trim() : "-");
+            string serialNumber = sensorDetails[1].Split(':')[1].Trim();
+            string type = DecodeString(sensorDetails.Length > 2 ? sensorDetails[2].Split(':')[1].Trim() : "-");
+            string model = DecodeString(sensorDetails.Length > 3 ? sensorDetails[3].Split(':')[1].Trim() : "-");
 
             if (type == "-" || model == "-") ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл содержит неполные сведения о датчике");
 
@@ -182,82 +207,91 @@ namespace SensorFilter
             {
                 connection.Open();
 
-                /*Булы для одноразовой отправки предупреждений
-                bool verDupeWarned      = false;
-                bool verNoVoltWarned    = false;
-                bool verNoResiWarned    = false;
-                bool defectPressureWarned   = false;
-                bool defectCurrentWarned    = false;*/
-
                 // Вставляем информацию о сенсоре
                 int sensorId = DatabaseHelper.InsertSensorInfo(serialNumber, type, model, connection);
 
                 // Проверяем наличие дубликатов по серийному номеру и дате
-                 if (databaseHelper.CheckVerificationExists(sensorId, connection)) fileDupe = 1;
+                if (databaseHelper.CheckVerificationExists(sensorId, connection)) fileDupe = 1;
+
+                bool formatWarned = false;
 
                 // Парсим данные верификации, начиная с 5 строки
                 for (int line = 5; line < lines.Length; line++)
                 {
                     // Отлов пустых строк
-                    if (string.IsNullOrEmpty(lines[line])) continue;
+                    if (!lines[line].Contains("|")) continue;
 
                     var data = lines[line].Split('|');
 
-                    DateTime    dateTime        =   DateTime.   Parse(data[0].Trim());
-                    double      temperature     =   double.     Parse(data[1].Trim());
-                    double      npi             =   double.     Parse(data[2].Trim());
-                    double      vpi             =   double.     Parse(data[3].Trim());
-                    double      pressureGiven   =   double.     Parse(data[4].Trim());
-                    double      pressureReal    =   double.     Parse(data[5].Trim());
-                    double      currentGiven    =   double.     Parse(data[6].Trim());
-                    double      currentReal     =   double.     Parse(data[7].Trim());
-                    double      voltage;
-                    try {       voltage         =   double.     Parse(data[8].Trim()); }
-                    catch {     voltage         =   0.0; }
-                    double      resistance;
-                    try {       resistance      =   double.     Parse(data[9].Trim()); }
-                    catch {     resistance      =   0.0; }
+                    DateTime dateTime;
+                    double temperature;
+                    double npi;
+                    double vpi;
+                    double pressureGiven;
+                    double pressureReal;
+                    double currentGiven;
+                    double currentReal;
+                    double voltage;
+                    double resistance;
 
-                    /* Проверяем отсутствие напряжения
-                    if (!verNoVoltWarned)
+                    try
                     {
-                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл не содержит данных по напряжению");
-                        verNoVoltWarned = true;
-                    }*/
-                    /* Проверяем отсутствие сопротивления
-                    if (!verNoResiWarned)
-                    {
-                        ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл не содержит данных по сопротивлению");
-                        verNoResiWarned = true;
-                    }*/
-                    /* Проверка на дефектные показатели
-                    if ((Math.Abs(pressureReal - pressureGiven) > (0.1 + 0.1 * pressureGiven)) && 
-                        !defectPressureWarned)
-                    {
-                        ErrorLogger.LogErrorAsync(fileName, "БРАК", "Превышено отклонение фактического давления");
-                        defectPressureWarned = true;
+                        dateTime = DateTime.Parse(data[0].Trim());
+                        temperature = double.Parse(data[1].Trim());
+                        npi = double.Parse(data[2].Trim());
+                        vpi = double.Parse(data[3].Trim());
+                        pressureGiven = double.Parse(data[4].Trim());
+                        pressureReal = double.Parse(data[5].Trim());
+                        currentGiven = double.Parse(data[6].Trim());
+                        currentReal = double.Parse(data[7].Trim());
+                        try
+                        { voltage = double.Parse(data[8].Trim()); }
+                        catch
+                        { voltage = 0.0; }
+                        try
+                        { resistance = double.Parse(data[9].Trim()); }
+                        catch
+                        { resistance = 0.0; }
                     }
-                    if ((Math.Abs(currentReal - currentGiven) > 0.05) && 
-                        !defectCurrentWarned)
+                    catch
                     {
-                        ErrorLogger.LogErrorAsync(fileName, "БРАК", "Превышено отклонение фактического тока");
-                        defectCurrentWarned = true;
-                    }*/
+                        if (!formatWarned) ErrorLogger.LogErrorAsync(fileName, "ОШИБКА", "Файл содержит строку верификации неправильного формата");
+                        formatWarned = true;
+                        continue;
+                    }
+
+                    if (currentReal <= 3.81 || currentReal >= 20.47)
+                    {
+                        ErrorLogger.LogErrorAsync(fileName, "БРАК", "Файл неудачной верификации");
+
+                        MoveToDefect(fileName, filePath);
+
+                        return true;
+                    }
 
                     verificationDataList.Add(new SensorVerification
                     {
-                        SensorId        = sensorId,
-                        DateTime        = dateTime,
-                        Temperature     = temperature,
-                        NPI             = npi,
-                        VPI             = vpi,
-                        PressureGiven   = pressureGiven,
-                        PressureReal    = pressureReal,
-                        CurrentGiven    = currentGiven,
-                        CurrentReal     = currentReal,
-                        Voltage         = voltage,
-                        Resistance      = resistance
+                        SensorId = sensorId,
+                        DateTime = dateTime,
+                        Temperature = temperature,
+                        NPI = npi,
+                        VPI = vpi,
+                        PressureGiven = pressureGiven,
+                        PressureReal = pressureReal,
+                        CurrentGiven = currentGiven,
+                        CurrentReal = currentReal,
+                        Voltage = voltage,
+                        Resistance = resistance
                     });
+                }
+
+                if (Math.Abs((verificationDataList.Last().DateTime - verificationDataList.First().DateTime).TotalDays) > 7)
+                {
+                    ErrorLogger.LogErrorAsync(fileName, "БРАК", "Файл содержит данные верификации за разные даты");
+
+                    MoveToDefect(fileName, filePath);
+
+                    return true;
                 }
 
                 // Вставляем все данные верификации пакетом
@@ -268,9 +302,9 @@ namespace SensorFilter
                 }
                 catch (Exception ex)
                 {
-                    ErrorLogger.LogError(fileName, "ОШИБКА", ex.Message);
+                    ErrorLogger.LogErrorAsync(fileName, "ОШИБКА", ex.Message);
                 }
-                
+
                 if (fileDupe == 2) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Файл верификации содержит дубликаты строк");
                 else if (fileDupe == 1) ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", "Сведения о верификации уже есть в базе данных");
             }
@@ -281,14 +315,14 @@ namespace SensorFilter
         private string VerifyTypeAndModel(string type, string model, string fileName)
         {
             // Конвертим нестандартную модель в общую
-            if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100"))   type = "ЭнИ-100";
-            if (type == "ЭНИ-12"    )                                   type = "ЭнИ-12";
-            if (type == "ЭНИ-12М"   )                                   type = "ЭнИ-12М";
+            if (type.Contains("ЭнИ-100") || type.Contains("ЭНИ-100")) type = "ЭнИ-100";
+            if (type == "ЭНИ-12") type = "ЭнИ-12";
+            if (type == "ЭНИ-12М") type = "ЭнИ-12М";
 
             if (model != "-" &&
-                ((( type == "ЭнИ-100"   ) && !sensorModels.EnI100_Models(). Contains(model)) ||
-                ((  type == "ЭнИ-12"    ) && !sensorModels.EnI12_Models().  Contains(model)) ||
-                ((  type == "ЭнИ-12М"   ) && !sensorModels.EnI12M_Models(). Contains(model)) ))
+                (((type == "ЭнИ-100") && !sensorModels.EnI100_Models().Contains(model)) ||
+                ((type == "ЭнИ-12") && !sensorModels.EnI12_Models().Contains(model)) ||
+                ((type == "ЭнИ-12М") && !sensorModels.EnI12M_Models().Contains(model))))
                 ErrorLogger.LogErrorAsync(fileName, "ПРЕДУПРЕЖДЕНИЕ", $"Файл содержит нестандартную модель - {model} ({type})");
 
             return type;
@@ -314,6 +348,23 @@ namespace SensorFilter
             }
 
             return rawData;
+        }
+
+        private void MoveToDefect(string fileName, string filePath)
+        {
+            // Получаем путь к директории "брак"
+            string archiveDirectory = Path.GetDirectoryName(filePath);
+            string defectDirectory = Path.Combine(archiveDirectory, "брак");
+
+            // Создаем директорию, если она не существует
+            if (!Directory.Exists(defectDirectory))
+            {
+                Directory.CreateDirectory(defectDirectory);
+            }
+
+            // Перемещаем файл в папку "брак"
+            string targetPath = Path.Combine(defectDirectory, fileName);
+            File.Move(filePath, targetPath);
         }
     }
 }

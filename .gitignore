@@ -1,2 +1,85 @@
-SensorFilter/bin
-SensorFilter/obj
+### Общие настройки для Visual Studio ###
+## Исключить папки сборки и объектные файлы
+bin/
+obj/
+[Bb]in/[Oo]bj/
+
+## Файлы пользовательских настроек (например, Resharper, Visual Studio)
+*.user
+*.suo
+*.userprefs
+*.vspscc
+*.vssscc
+*.resharper
+_ReSharper.Caches/
+
+## Папка настроек среды Visual Studio
+.vs/
+.vscode/
+
+## Результаты тестирования
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+
+## Временные файлы
+*.tmp
+*.log
+*.cache
+*.bak
+*.pidb
+*.ncb
+
+### NuGet ###
+## Исключить пакеты NuGet
+packages/
+*.nupkg
+nuget.exe
+
+## Восстановление пакетов (можно закомментировать, если используете PackageReference)
+packages/
+
+### Сборка ###
+## Исключить выходные файлы сборки
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
+[Bb]uildOutput/
+
+### Специфичные для .NET ###
+## Файлы проектов (если не используются новые форматы)
+*.csproj.user
+*.vbproj.user
+
+## Файлы публикации
+pubxml
+*.pubxml
+PublishProfiles/
+
+## Локальные настройки IIS
+App_Data/
+*.db
+*.mdf
+
+### Прочее ###
+## Исключить резервные копии и временные файлы редакторов
+*.swp
+*.*~
+*.sublime-*
+*.sln.ide
+*.ide
+
+## Исключить файлы Rider
+.idea/
+*.sln.iml
+
+## Исключить файлы Docker
+docker-compose.*.yml
+**/docker-compose*
+**/.dockerignore
+**/.env
