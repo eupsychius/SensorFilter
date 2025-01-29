@@ -530,8 +530,6 @@ namespace SensorFilter
                         if (    skippedRows.Item2) skippedVerification++;
                         if (!   skippedRows.Item3) filesWritten++;
                         
-                        filesPassed++;
-
                         // Обновляем прогрессбар
                         Dispatcher.Invoke(() =>
                         {
@@ -558,11 +556,12 @@ namespace SensorFilter
                     // Ловим остальные исключения
                     catch (Exception ex)
                     {
-                        Dispatcher.Invoke(() => { ErrorLogger.LogError(fileInfo.Name, "ОШИБКА", ex.Message); });
-                        filesPassed++;
+                        Dispatcher.Invoke(() => { ErrorLogger.LogErrorAsync(fileInfo.Name, "ОШИБКА", ex.Message); });
 
                         fullSync = false;
                     }
+
+                    filesPassed++;
                 }
             }, token);
 
@@ -662,7 +661,7 @@ namespace SensorFilter
             }
             else if (fileName.StartsWith("VR_FN_")) // Если это файл верификации
             {
-                skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName);
+                skippedVerification = fileProcessor.ParseVerificationData(lines, GetDbPath(), fileName, filePath);
                 skippedFile = skippedVerification;
             }
 
